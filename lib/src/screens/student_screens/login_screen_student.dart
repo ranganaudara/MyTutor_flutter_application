@@ -11,7 +11,8 @@ class StudentLoginScreen extends StatefulWidget {
   _StudentLoginScreenState createState() => _StudentLoginScreenState();
 }
 
-class _StudentLoginScreenState extends State<StudentLoginScreen> with ValidatorMixin {
+class _StudentLoginScreenState extends State<StudentLoginScreen>
+    with ValidatorMixin {
   final _formKey = GlobalKey<FormState>();
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   String userName;
@@ -85,6 +86,7 @@ class _StudentLoginScreenState extends State<StudentLoginScreen> with ValidatorM
             ),
           ),
           Text('Log in to find your teacher...',
+              textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 20.0,
                 fontWeight: FontWeight.bold,
@@ -120,8 +122,7 @@ class _StudentLoginScreenState extends State<StudentLoginScreen> with ValidatorM
         icon: Icon(Icons.keyboard),
         labelText: 'Password',
         border: OutlineInputBorder(
-            borderRadius: const BorderRadius.all(Radius.circular(20.0))
-        ),
+            borderRadius: const BorderRadius.all(Radius.circular(20.0))),
       ),
       validator: passwordValidator,
       onSaved: (String value) {
@@ -191,6 +192,7 @@ class _StudentLoginScreenState extends State<StudentLoginScreen> with ValidatorM
       Map<String, dynamic> res = json.decode(response.body);
       print(res);
       if (res['success'] == true) {
+        Navigator.pop(context);
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => LogedInStudent()),

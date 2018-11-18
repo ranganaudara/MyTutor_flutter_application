@@ -18,13 +18,14 @@ class _LogedInStudentState extends State<LogedInStudent> {
   }
 
   Future<String> makeRequest() async {
-
     var body = {'district': 'all', 'subject': 'all'};
 
-    var response = await http.post(
+    var response = await http
+        .post(
       Uri.encodeFull(url),
       body: body,
-    ).then((dynamic response) {
+    )
+        .then((dynamic response) {
       Map<String, dynamic> res = json.decode(response.body);
 
       print(res);
@@ -36,11 +37,25 @@ class _LogedInStudentState extends State<LogedInStudent> {
       print(data[0]["fname"]);
     });
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Fuck"),
+        title: Center(child: Text("Hello User!")),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.notifications),
+            onPressed: () {},
+          ),
+          IconButton(
+            icon: Icon(Icons.search),
+            onPressed: () {},
+          ),
+        ],
+      ),
+      drawer: Drawer(
+
       ),
       body: Container(
         child: ListView.builder(
@@ -51,9 +66,9 @@ class _LogedInStudentState extends State<LogedInStudent> {
                 leading: CircleAvatar(
                   backgroundImage: NetworkImage(data[index]["imgURL"]),
                 ),
-                title: Text(data[index]["fname"]+" "+ data[index]["lname"]),
+                title: Text(data[index]["fname"] + " " + data[index]["lname"]),
                 subtitle: Text(data[index]["subject"]),
-                onTap: (){},
+                onTap: () {},
               ),
             );
           },

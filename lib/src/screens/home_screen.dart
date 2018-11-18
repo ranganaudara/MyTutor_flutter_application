@@ -12,59 +12,49 @@ class HomeScreen extends StatefulWidget {
 class HomeScreenState extends State<HomeScreen> {
   build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Tutor App'),
-        actions: <Widget>[
-          IconButton(
-              icon: Icon(Icons.notifications),
-              onPressed: () {},
-              padding: EdgeInsets.only(right: 10.0)),
-          IconButton(
-              icon: Icon(Icons.search),
-              onPressed: () {},
-              padding: EdgeInsets.only(right: 20.0)),
-        ],
-      ),
-      drawer: Drawer(),
-      body: Column(
-        children: <Widget>[
-          Expanded(
-            flex: 6,
-            child: Container(
-              color: Colors.black12,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  SizedBox(height: 12.0),
-                  logo(),
-                  welcomeText(),
-                  SizedBox(height: 8.0),
-                  _startButton(),
-                  SizedBox(height: 8.0),
-                ],
+      body: SafeArea(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Expanded(
+              flex: 6,
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 30.0),
+                color: Colors.black12,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    SizedBox(height: 12.0),
+                    logo(),
+                    welcomeText(),
+                    SizedBox(height: 8.0),
+                    _startButton(),
+                    SizedBox(height: 8.0),
+                  ],
+                ),
               ),
             ),
-          ),
-          SizedBox(height: 12.0),
-          Container(
-            child: Text(
-              'Trending Techers',
-              style: TextStyle(
-                fontSize: 20.0,
-                fontWeight: FontWeight.bold,
+            SizedBox(height: 12.0),
+            Container(
+              child: Text(
+                'Trending Teachers',
+                style: TextStyle(
+                  fontSize: 20.0,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
-          ),
-          Expanded(
-            flex: 7,
-            child: Container(
-              margin: EdgeInsets.symmetric(vertical: 20.0),
-              height: 200.0,
-              child: VerticalList(),
-            ),
-          )
-        ],
+            Expanded(
+              flex: 7,
+              child: Container(
+                margin: EdgeInsets.symmetric(vertical: 20.0),
+                height: 200.0,
+                child: VerticalList(),
+              ),
+            )
+          ],
+        ),
       ),
     );
   }
@@ -92,11 +82,16 @@ class HomeScreenState extends State<HomeScreen> {
               fontFamily: 'Pacifito',
             ),
           ),
-          Text('Log in to find your teacher...',
-              style: TextStyle(
-                fontSize: 20.0,
-                fontWeight: FontWeight.bold,
-              )),
+          SizedBox(height: 8.0),
+          Center(
+            child: Text(
+                'Join with us to find the best Teacher for your need!',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 20.0,
+                  fontWeight: FontWeight.bold,
+                )),
+          ),
         ],
       ),
     );

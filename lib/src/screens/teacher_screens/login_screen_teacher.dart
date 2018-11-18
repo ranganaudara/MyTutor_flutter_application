@@ -85,6 +85,7 @@ class _TeacherLoginScreenState extends State<TeacherLoginScreen> with ValidatorM
             ),
           ),
           Text('Log in to connect with your student...',
+              textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 20.0,
                 fontWeight: FontWeight.bold,

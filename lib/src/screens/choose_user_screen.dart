@@ -15,6 +15,7 @@ class _ChooseUserState extends State<ChooseUser> {
         title: Text('Welcome to MyTutor!'),
       ),
       body: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
           SizedBox(height: 10.0),
@@ -25,6 +26,8 @@ class _ChooseUserState extends State<ChooseUser> {
           _loginButton(),
           SizedBox(height: 10.0),
           _registerButton(),
+          SizedBox(height: 150.0),
+
         ],
       ),
     );
@@ -47,6 +50,7 @@ class _ChooseUserState extends State<ChooseUser> {
         padding: const EdgeInsets.only(left:24.0, right: 24.0),
         child: Text(
           "Let us know you to make your experience better...",
+          textAlign: TextAlign.center,
           style: TextStyle(
             fontWeight: FontWeight.w500,
             fontSize: 20.0,
