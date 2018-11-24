@@ -56,7 +56,7 @@ class _StudentRegisterScreenState extends State<StudentRegisterScreen> with Vali
   Widget logo() {
     return Center(
       child: CircleAvatar(
-        child: Image(image: AssetImage('assets/images/icon.png')),
+        child: Image(image: AssetImage('assets/images/student_login.png')),
         maxRadius: 40.0,
         minRadius: 10.0,
         backgroundColor: Colors.transparent,
@@ -200,6 +200,7 @@ class _StudentRegisterScreenState extends State<StudentRegisterScreen> with Vali
       print(res);
       if (res['success'] == true) {
         print(res['msg']);
+        Navigator.of(context).pop();
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => StudentLoginScreen()),

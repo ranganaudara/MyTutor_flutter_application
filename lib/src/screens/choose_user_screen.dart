@@ -11,14 +11,14 @@ class _ChooseUserState extends State<ChooseUser> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Welcome to MyTutor!'),
-      ),
+//      appBar: AppBar(
+//        title: Text('Welcome to MyTutor!'),
+//      ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
-          SizedBox(height: 10.0),
+          SizedBox(height: 100.0),
           _logo(),
           SizedBox(height: 10.0),
           _text(),
@@ -27,7 +27,6 @@ class _ChooseUserState extends State<ChooseUser> {
           SizedBox(height: 10.0),
           _registerButton(),
           SizedBox(height: 150.0),
-
         ],
       ),
     );
@@ -36,7 +35,7 @@ class _ChooseUserState extends State<ChooseUser> {
   Widget _logo() {
     return Center(
       child: CircleAvatar(
-        child: Image(image: AssetImage('assets/images/icon.png')),
+        child: Image(image: AssetImage('assets/images/question.png')),
         maxRadius: 60.0,
         minRadius: 20.0,
         backgroundColor: Colors.transparent,
@@ -47,13 +46,13 @@ class _ChooseUserState extends State<ChooseUser> {
   Widget _text() {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.only(left:24.0, right: 24.0),
+        padding: const EdgeInsets.only(left: 24.0, right: 24.0),
         child: Text(
           "Let us know you to make your experience better...",
           textAlign: TextAlign.center,
           style: TextStyle(
             fontWeight: FontWeight.w500,
-            fontSize: 20.0,
+            fontSize: 23.0,
           ),
         ),
       ),
@@ -75,7 +74,10 @@ class _ChooseUserState extends State<ChooseUser> {
             MaterialPageRoute(builder: (context) => TeacherLoginScreen()),
           );
         },
-        child: Text('I am a Teacher'),
+        child: Text(
+          'I am a Teacher',
+          style: TextStyle(fontSize: 17.0, color: Colors.black87),
+        ),
       ),
     );
   }
@@ -95,7 +97,10 @@ class _ChooseUserState extends State<ChooseUser> {
             MaterialPageRoute(builder: (context) => StudentLoginScreen()),
           );
         },
-        child: Text('I am a Student'),
+        child: Text(
+          'I am a Student',
+          style: TextStyle(fontSize: 17.0, color: Colors.black87),
+        ),
       ),
     );
   }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tutor_app_new/src/screens/choose_user_screen.dart';
-import 'package:tutor_app_new/src/widgets/vertical_list2.dart';
+import 'package:tutor_app_new/src/widgets/vertical_list.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -84,8 +84,7 @@ class HomeScreenState extends State<HomeScreen> {
           ),
           SizedBox(height: 8.0),
           Center(
-            child: Text(
-                'Join with us to find the best Teacher for your need!',
+            child: Text('Join with us to find the best Teacher for your need!',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 20.0,
@@ -112,7 +111,10 @@ class HomeScreenState extends State<HomeScreen> {
             MaterialPageRoute(builder: (context) => ChooseUser()),
           );
         },
-        child: Text('Start Using MyTutor...'),
+        child: Text(
+          'Start Using MyTutor...',
+          style: TextStyle(fontSize: 16.0, color: Colors.black87),
+        ),
       ),
     );
   }

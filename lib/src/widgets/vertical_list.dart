@@ -1,10 +1,7 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'dart:async';
 import 'package:http/http.dart' as http;
-import 'package:tutor_app_new/src/models/trnding_user.dart';
-import 'package:tutor_app_new/src/screens/trendings_details.dart';
+import 'dart:async';
+import 'dart:convert';
 
 class VerticalList extends StatefulWidget {
   @override
@@ -12,79 +9,43 @@ class VerticalList extends StatefulWidget {
 }
 
 class _VerticalListState extends State<VerticalList> {
-  final String url = "https://randomuser.me/api/?results=5000";
+  String url = "https://randomuser.me/api/?results=10";
+  List data;
 
-  Future<List<User>> _getJsonData() async {
-    var data = await http.get(url);
-    var jsonData = json.decode(data.body);
+  @override
+  void initState() {
+    super.initState();
+    this.makeRequest();
+  }
 
-    List<User> users = [];
-
-    for (var u in jsonData) {
-      User user =
-          User(u['index'], u['about'], u['name'], u['email'], u['picture']);
-      users.add(user);
-    }
-
-    print('list conut: ${users.length}');
-
-    return users;
+  Future<String> makeRequest() async {
+    var response = await http.get(
+      Uri.encodeFull(url),
+      headers: {"Accept": "application/json"},
+    );
+    setState(() {
+      var extractdata = json.decode(response.body);
+      data = extractdata["results"];
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: FutureBuilder(
-        future:
-            _getJsonData(), //whatever this returns, will be inside of snapshot parameter
-        builder: (BuildContext context, AsyncSnapshot snapshot) {
-          if (snapshot.data == null) {
-            return Container(
-              child: Center(
-                child: Text('Loading...'),
-              ),
-            );
-          } else {
-            return ListView.builder(
-              scrollDirection: Axis.horizontal,
-              itemCount: snapshot.data.length,
-              itemBuilder: (BuildContext context, int index) {
-                return Card(
-                  child: Stack(
-                    children: <Widget>[
-                      Container(
-                        color: Colors.black12,
-                        height:250.0,
-                        width: 250.0,
-                        child:
-                        Image.network(snapshot.data[index].picture),
-                      ),
-                      Container(
-                        height: 250.0,
-                        width: 250.0,
-                        child: ListTile(
-                          dense: true,
-                          title: Text(snapshot.data[index].name),
-                          subtitle: Text(snapshot.data[index].email),
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    TrendingDetails(snapshot.data[index]),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              },
-            );
-          }
-        },
-      ),
+    return ListView.builder(
+      itemCount: data == null ? 0 : data.length,
+      itemBuilder: (BuildContext context, index) {
+        return Card(
+          child: ListTile(
+            leading: CircleAvatar(
+              backgroundImage: NetworkImage(data[index]["picture"]["thumbnail"]),
+            ),
+            title: Text(data[index]["name"]["first"]),
+            subtitle: Text(data[index]["location"]["city"]),
+            onTap: (){},
+          ),
+        );
+      },
     );
   }
+
 }

@@ -56,7 +56,7 @@ class _TeacherRegisterScreenState extends State<TeacherRegisterScreen> with Vali
   Widget logo() {
     return Center(
       child: CircleAvatar(
-        child: Image(image: AssetImage('assets/images/icon.png')),
+        child: Image(image: AssetImage('assets/images/teacher_login.png')),
         maxRadius: 40.0,
         minRadius: 10.0,
         backgroundColor: Colors.transparent,
@@ -186,13 +186,11 @@ class _TeacherRegisterScreenState extends State<TeacherRegisterScreen> with Vali
     var url = 'https://frightful-warlock-77972.herokuapp.com/user/register';
 
     var body = {
-      'firstName': firstName,
-      'lastName': lastName,
-      'userName': userName,
+      'role': 'tutor',
+      'fname': firstName,
+      'lname': lastName,
       'email': email,
       'password': password,
-      'city': city,
-      'contactNumber': contactNumber
     };
 
     print(body);
@@ -202,6 +200,7 @@ class _TeacherRegisterScreenState extends State<TeacherRegisterScreen> with Vali
       print(res);
       if (res['success'] == true) {
         print(res['msg']);
+        Navigator.of(context).pop();
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => TeacherLoginScreen()),

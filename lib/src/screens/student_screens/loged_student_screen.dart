@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:tutor_app_new/src/models/district_list.dart';
 
 class LogedInStudent extends StatefulWidget {
   @override
@@ -8,72 +9,280 @@ class LogedInStudent extends StatefulWidget {
 }
 
 class _LogedInStudentState extends State<LogedInStudent> {
-  String url = "https://guarded-beyond-19031.herokuapp.com/search";
-  List data;
+  String _currentSubjectSelected;
+  String _currentDistrictSelected;
+  final searchController = TextEditingController();
+  String _district = "all";
+  String _subject = "all";
+  String _searchKey;
+  String urlForSubject = 'https://guarded-beyond-19031.herokuapp.com/subject';
+  String urlForAll = "https://guarded-beyond-19031.herokuapp.com/search";
+
+  List allTutors;
+  List subjectList = [''];
+
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  @override
+  void dispose() {
+    searchController.dispose();
+    super.dispose();
+  }
 
   @override
   void initState() {
     super.initState();
-    this.makeRequest();
+    this.getAllTutors();
+    this.getAllSubjects();
   }
 
-  Future<String> makeRequest() async {
-    var body = {'district': 'all', 'subject': 'all'};
+  //<<<<<<<<<< Snack Bar >>>>>>>>
 
+  void _showSnackBar() {
+    final snackBar = SnackBar(
+      content: Text(
+        'Oops! Couldn\'t find any teacher!',
+        style: TextStyle(color: Colors.white),
+      ),
+      duration: Duration(seconds: 2),
+      backgroundColor: Colors.blueGrey,
+    );
+    _scaffoldKey.currentState.showSnackBar(snackBar);
+  }
+
+
+  //<<<<<<<<<<<Get all subjects>>>>>>>>>.
+
+  Future<String> getAllSubjects() async {
+    var res = await http.get(urlForSubject);
+    var resBody = json.decode(res.body);
+    print(res);
+
+    setState(() {
+      subjectList = resBody['subject'];
+    });
+
+    print(subjectList);
+
+    return "Sucess";
+  }
+//<<<<<<<<<<Get Tutors>>>>>>>>>>
+
+  Future<String> getAllTutors() async {
+    var allTutorsBody = {'district': '$_district', 'subject': '$_subject'};
     var response = await http
-        .post(
-      Uri.encodeFull(url),
-      body: body,
-    )
+        .post(Uri.encodeFull(urlForAll), body: allTutorsBody)
         .then((dynamic response) {
       Map<String, dynamic> res = json.decode(response.body);
 
       print(res);
 
       setState(() {
-        data = res["user"];
+        allTutors = res["user"];
+        if(allTutors.isEmpty){
+          _showSnackBar();
+        }
       });
-
-      print(data[0]["fname"]);
     });
+    return "Sucess";
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Center(child: Text("Hello User!")),
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.notifications),
-            onPressed: () {},
-          ),
-          IconButton(
-            icon: Icon(Icons.search),
-            onPressed: () {},
-          ),
-        ],
-      ),
-      drawer: Drawer(
-
-      ),
-      body: Container(
-        child: ListView.builder(
-          itemCount: data == null ? 0 : data.length,
-          itemBuilder: (BuildContext context, index) {
-            return Card(
-              child: ListTile(
-                leading: CircleAvatar(
-                  backgroundImage: NetworkImage(data[index]["imgURL"]),
-                ),
-                title: Text(data[index]["fname"] + " " + data[index]["lname"]),
-                subtitle: Text(data[index]["subject"]),
-                onTap: () {},
+    return DefaultTabController(
+      length: 3,
+      child: Scaffold(
+        key: _scaffoldKey,
+        appBar: AppBar(
+          title: Center(child: Text("Hello User!")),
+          actions: <Widget>[
+            IconButton(
+              icon: Icon(Icons.notifications),
+              onPressed: () {},
+            ),
+            IconButton(
+              icon: Icon(Icons.search),
+              onPressed: () {},
+            ),
+          ],
+          bottom: TabBar(
+            tabs: <Widget>[
+              Tab(
+                icon: Icon(Icons.person),
+                text: 'Teachers',
               ),
-            );
-          },
+              Tab(
+                icon: Icon(Icons.book),
+                text: 'Classes',
+              ),
+              Tab(
+                icon: Icon(Icons.chat),
+                text: 'ChatRoom',
+              ),
+            ],
+          ),
+        ),
+        drawer: Drawer(),
+        body: TabBarView(
+          children: <Widget>[
+            _containerBox(),
+            Icon(Icons.book),
+            Icon(Icons.chat_bubble_outline),
+          ],
         ),
       ),
     );
+  }
+
+  Widget _teachersList() {
+    return Container(
+      child: ListView.builder(
+        itemCount: allTutors == null ? 0 : allTutors.length,
+        itemBuilder: (BuildContext context, index) {
+          return Card(
+            child: ListTile(
+              leading: CircleAvatar(
+                backgroundImage: NetworkImage(allTutors[index]["imgURL"]),
+              ),
+              title: Text(
+                  allTutors[index]["fname"] + " " + allTutors[index]["lname"]),
+              subtitle: Text(allTutors[index]["subject"]),
+              onTap: () {},
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _title() {
+    return Container(
+      child: Text(
+        'Filter Teachers',
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          fontSize: 20.0,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
+  }
+
+  Widget _subjectButton() {
+    return DropdownButton<String>(
+      items: subjectList == null
+          ? null
+          : subjectList.map((dropDownItem) {
+              return DropdownMenuItem<String>(
+                value: dropDownItem,
+                child: Text(dropDownItem),
+              );
+            }).toList(),
+      onChanged: (String valueSelected) {
+        _onDropDownSubjectSelected(valueSelected);
+      },
+      value: _currentSubjectSelected,
+      hint: Text('Filter by subject'),
+    );
+  }
+
+  Widget _districtButton() {
+    return DropdownButton<String>(
+      items: districtList.isEmpty
+          ? null
+          : districtList.map((dropDownItem) {
+              return DropdownMenuItem<String>(
+                value: dropDownItem,
+                child: Text(dropDownItem),
+              );
+            }).toList(),
+      onChanged: (String valueSelected) {
+        _onDropDownDistrictSelected(valueSelected);
+      },
+      value: _currentDistrictSelected,
+      hint: Text('Filter by district'),
+    );
+  }
+
+  Widget _searchBox() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal:60.0),
+      child: Column(
+        children: <Widget>[
+          TextField(
+            controller: searchController,
+            decoration: InputDecoration(
+              prefixIcon: Icon(Icons.search),
+              hintText: 'Please enter a search term',
+            ),
+            textAlign: TextAlign.center,
+          ),
+          Padding(
+            padding: EdgeInsets.symmetric(vertical: 16.0),
+            child: Material(
+              borderRadius: BorderRadius.circular(32.0),
+              color: Colors.blueAccent,
+              shadowColor: Colors.blueAccent.shade100,
+              elevation: 5.0,
+              child: MaterialButton(
+                minWidth: 150.0,
+                height: 45.0,
+                onPressed: () {
+                  setState(() {
+                    _searchKey = searchController.text;
+                  });
+                },
+                child: Text('Search'),
+              ),
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget _containerBox() {
+    return Column(
+      children: <Widget>[
+        Expanded(
+            flex: 1,
+            child: ListView(
+              children: <Widget>[
+                SizedBox(
+                  height: 20.0,
+                ),
+                _title(),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    _subjectButton(),
+                    _districtButton(),
+                  ],
+                ),
+                _searchBox(),
+              ],
+            )),
+        Expanded(
+          flex: 1,
+          child: _teachersList(),
+        ),
+      ],
+    );
+  }
+
+  void _onDropDownSubjectSelected(String valueSelected) {
+    setState(() {
+      this._currentSubjectSelected = valueSelected;
+      this._subject = valueSelected;
+      getAllTutors();
+    });
+  }
+
+  void _onDropDownDistrictSelected(String valueSelected) {
+    setState(() {
+      this._currentDistrictSelected = valueSelected;
+      this._district = valueSelected;
+      getAllTutors();
+    });
   }
 }

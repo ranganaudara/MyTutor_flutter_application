@@ -13,6 +13,8 @@ class StudentLoginScreen extends StatefulWidget {
 
 class _StudentLoginScreenState extends State<StudentLoginScreen>
     with ValidatorMixin {
+  bool _indicatorState = true;
+
   final _formKey = GlobalKey<FormState>();
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   String userName;
@@ -66,8 +68,8 @@ class _StudentLoginScreenState extends State<StudentLoginScreen>
   Widget logo() {
     return Center(
       child: CircleAvatar(
-        child: Image(image: AssetImage('assets/images/icon.png')),
-        maxRadius: 70.0,
+        child: Image(image: AssetImage('assets/images/student_login.png')),
+        maxRadius: 60.0,
         minRadius: 20.0,
         backgroundColor: Colors.transparent,
       ),
@@ -78,17 +80,13 @@ class _StudentLoginScreenState extends State<StudentLoginScreen>
     return Center(
       child: Column(
         children: <Widget>[
-          Text(
-            "MyTutor",
-            style: TextStyle(
-              fontSize: 20.0,
-              fontWeight: FontWeight.bold,
-            ),
+          SizedBox(
+            height: 20.0,
           ),
           Text('Log in to find your teacher...',
               textAlign: TextAlign.center,
               style: TextStyle(
-                fontSize: 20.0,
+                fontSize: 23.0,
                 fontWeight: FontWeight.bold,
               )),
         ],
@@ -146,6 +144,7 @@ class _StudentLoginScreenState extends State<StudentLoginScreen>
             if (_formKey.currentState.validate()) {
               _formKey.currentState.save();
               postRequest();
+              alertLoading();
             }
           },
           child: Text('Log In'),
@@ -192,7 +191,7 @@ class _StudentLoginScreenState extends State<StudentLoginScreen>
       Map<String, dynamic> res = json.decode(response.body);
       print(res);
       if (res['success'] == true) {
-        Navigator.pop(context);
+        Navigator.of(context).pop();
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => LogedInStudent()),
@@ -209,5 +208,20 @@ class _StudentLoginScreenState extends State<StudentLoginScreen>
       _showSnackBar(invalidMsg);
       _formKey.currentState.reset();
     });
+  }
+
+  void alertLoading() {
+    // flutter defined function
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        // return object of type Dialog
+        return Container(
+          width: 20.0,
+          height: 20.0,
+          child: null,
+        );
+      },
+    );
   }
 }
