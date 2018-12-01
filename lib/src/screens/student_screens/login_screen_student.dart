@@ -189,7 +189,6 @@ class _StudentLoginScreenState extends State<StudentLoginScreen>
 
     http.post(url, body: body).then((dynamic response) {
       Map<String, dynamic> res = json.decode(response.body);
-      print(res);
       if (res['success'] == true) {
         Navigator.of(context).pop();
         Navigator.push(

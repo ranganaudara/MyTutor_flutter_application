@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:tutor_app_new/src/models/district_list.dart';
+import 'package:tutor_app_new/src/screens/teacher_screens/teacher_profile.dart';
+import '../../models/tutor_model.dart';
 
 class LogedInStudent extends StatefulWidget {
   @override
@@ -36,7 +38,7 @@ class _LogedInStudentState extends State<LogedInStudent> {
     this.getAllSubjects();
   }
 
-  //<<<<<<<<<< Snack Bar >>>>>>>>
+  //<<<<<<<<<< Snack Bar >>>>>>>>>>>>
 
   void _showSnackBar() {
     final snackBar = SnackBar(
@@ -50,19 +52,14 @@ class _LogedInStudentState extends State<LogedInStudent> {
     _scaffoldKey.currentState.showSnackBar(snackBar);
   }
 
-
   //<<<<<<<<<<<Get all subjects>>>>>>>>>.
 
   Future<String> getAllSubjects() async {
     var res = await http.get(urlForSubject);
     var resBody = json.decode(res.body);
-    print(res);
-
     setState(() {
       subjectList = resBody['subject'];
     });
-
-    print(subjectList);
 
     return "Sucess";
   }
@@ -70,7 +67,7 @@ class _LogedInStudentState extends State<LogedInStudent> {
 
   Future<String> getAllTutors() async {
     var allTutorsBody = {'district': '$_district', 'subject': '$_subject'};
-    var response = await http
+    await http
         .post(Uri.encodeFull(urlForAll), body: allTutorsBody)
         .then((dynamic response) {
       Map<String, dynamic> res = json.decode(response.body);
@@ -79,10 +76,12 @@ class _LogedInStudentState extends State<LogedInStudent> {
 
       setState(() {
         allTutors = res["user"];
-        if(allTutors.isEmpty){
+        if (allTutors.isEmpty) {
           _showSnackBar();
         }
       });
+
+      print(allTutors);
     });
     return "Sucess";
   }
@@ -142,12 +141,17 @@ class _LogedInStudentState extends State<LogedInStudent> {
           return Card(
             child: ListTile(
               leading: CircleAvatar(
-                backgroundImage: NetworkImage(allTutors[index]["imgURL"]),
+                backgroundImage:
+                NetworkImage(allTutors[index]["imgURL"]),
               ),
-              title: Text(
-                  allTutors[index]["fname"] + " " + allTutors[index]["lname"]),
-              subtitle: Text(allTutors[index]["subject"]),
-              onTap: () {},
+              title: Text(allTutors[index]["fname"]+" "+allTutors[index]["lname"]),
+              subtitle: Text(allTutors[index]["location"]),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => TeacherProfile(myTutor: allTutors[index],)),
+                );
+              },
             ),
           );
         },
@@ -206,7 +210,7 @@ class _LogedInStudentState extends State<LogedInStudent> {
 
   Widget _searchBox() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal:60.0),
+      padding: const EdgeInsets.symmetric(horizontal: 60.0),
       child: Column(
         children: <Widget>[
           TextField(

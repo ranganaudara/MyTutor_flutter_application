@@ -37,15 +37,21 @@ class _VerticalListState extends State<VerticalList> {
         return Card(
           child: ListTile(
             leading: CircleAvatar(
-              backgroundImage: NetworkImage(data[index]["picture"]["thumbnail"]),
+              backgroundImage:
+                  NetworkImage(data[index]["picture"]["thumbnail"]),
             ),
             title: Text(data[index]["name"]["first"]),
             subtitle: Text(data[index]["location"]["city"]),
-            onTap: (){},
+            onTap: () {
+              _createTeacher();
+            },
           ),
         );
       },
     );
   }
 
+  void _createTeacher(){
+
+  }
 }
