@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:tutor_app_new/src/screens/student_screens/login_screen_student.dart';
+import 'package:tutor_app_new/src/screens/student_screens/login_screen_student/login_screen_student.dart';
 import 'package:tutor_app_new/src/screens/teacher_screens/login_screen_teacher.dart';
 
 class ChooseUser extends StatefulWidget {

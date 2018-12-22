@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:tutor_app_new/src/models/district_list.dart';
 import 'package:tutor_app_new/src/screens/teacher_screens/teacher_profile.dart';
-import '../../models/tutor_model.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 
 class LogedInStudent extends StatefulWidget {
   @override
@@ -125,7 +126,6 @@ class _LogedInStudentState extends State<LogedInStudent> {
         body: TabBarView(
           children: <Widget>[
             _containerBox(),
-            Icon(Icons.book),
             Icon(Icons.chat_bubble_outline),
           ],
         ),
@@ -177,11 +177,11 @@ class _LogedInStudentState extends State<LogedInStudent> {
       items: subjectList == null
           ? null
           : subjectList.map((dropDownItem) {
-              return DropdownMenuItem<String>(
-                value: dropDownItem,
-                child: Text(dropDownItem),
-              );
-            }).toList(),
+        return DropdownMenuItem<String>(
+          value: dropDownItem,
+          child: Text(dropDownItem),
+        );
+      }).toList(),
       onChanged: (String valueSelected) {
         _onDropDownSubjectSelected(valueSelected);
       },
@@ -195,11 +195,11 @@ class _LogedInStudentState extends State<LogedInStudent> {
       items: districtList.isEmpty
           ? null
           : districtList.map((dropDownItem) {
-              return DropdownMenuItem<String>(
-                value: dropDownItem,
-                child: Text(dropDownItem),
-              );
-            }).toList(),
+        return DropdownMenuItem<String>(
+          value: dropDownItem,
+          child: Text(dropDownItem),
+        );
+      }).toList(),
       onChanged: (String valueSelected) {
         _onDropDownDistrictSelected(valueSelected);
       },
@@ -287,6 +287,13 @@ class _LogedInStudentState extends State<LogedInStudent> {
       this._currentDistrictSelected = valueSelected;
       this._district = valueSelected;
       getAllTutors();
+    });
+  }
+  _getEmailPreference() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      String myEmail = prefs.getString("email");
+      print(myEmail);
     });
   }
 }

@@ -1,25 +1,24 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:tutor_app_new/src/screens/student_screens/loged_student_screen.dart';
-import 'package:tutor_app_new/src/screens/student_screens/register_screen_student.dart';
-
-import '../../mixins/validator_mixin.dart';
+import 'package:tutor_app_new/src/screens/student_screens/loged_student_screen/loged_student_screen.dart';
+import 'package:tutor_app_new/src/screens/student_screens/register_screen_student/register_screen_student.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../../../mixins/validator_mixin.dart';
 
 class StudentLoginScreen extends StatefulWidget {
   @override
   _StudentLoginScreenState createState() => _StudentLoginScreenState();
 }
 
-class _StudentLoginScreenState extends State<StudentLoginScreen>
-    with ValidatorMixin {
-  bool _indicatorState = true;
+class _StudentLoginScreenState extends State<StudentLoginScreen> with ValidatorMixin {
 
   final _formKey = GlobalKey<FormState>();
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   String userName;
   String password;
   String invalidMsg = "";
+  String email  = "";
 
   //<<<<<<<<<< Snack Bar >>>>>>>>
 
@@ -47,6 +46,7 @@ class _StudentLoginScreenState extends State<StudentLoginScreen>
             shrinkWrap: true,
             padding: EdgeInsets.only(left: 24.0, right: 24.0),
             children: <Widget>[
+              SizedBox(height: 8.0),
               logo(),
               SizedBox(height: 8.0),
               welcomeText(),
@@ -145,6 +145,7 @@ class _StudentLoginScreenState extends State<StudentLoginScreen>
               _formKey.currentState.save();
               postRequest();
               alertLoading();
+
             }
           },
           child: Text('Log In'),
@@ -161,7 +162,9 @@ class _StudentLoginScreenState extends State<StudentLoginScreen>
           color: Colors.black54,
         ),
       ),
-      onPressed: () {},
+      onPressed: () {
+
+      },
     );
   }
 
@@ -189,13 +192,21 @@ class _StudentLoginScreenState extends State<StudentLoginScreen>
 
     http.post(url, body: body).then((dynamic response) {
       Map<String, dynamic> res = json.decode(response.body);
-      if (res['success'] == true) {
+      setState(() {
+        email = res['user']['email'];
+      });
+      _saveEmailPreference();
+
+
+      if (res['success'] == true && res['block'] == false) {
         Navigator.of(context).pop();
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => LogedInStudent()),
         );
-      } else {
+      }else if(res['success'] == true && res['block'] == true) {
+        invalidAuthUserBlocked();
+      }else{
         invalidAuth();
       }
     });
@@ -204,6 +215,14 @@ class _StudentLoginScreenState extends State<StudentLoginScreen>
   void invalidAuth() {
     setState(() {
       this.invalidMsg = "Invalid Username or Password";
+      _showSnackBar(invalidMsg);
+      _formKey.currentState.reset();
+    });
+  }
+
+  void invalidAuthUserBlocked() {
+    setState(() {
+      this.invalidMsg = "Can't login! You are blocked!";
       _showSnackBar(invalidMsg);
       _formKey.currentState.reset();
     });
@@ -222,5 +241,13 @@ class _StudentLoginScreenState extends State<StudentLoginScreen>
         );
       },
     );
+  }
+
+
+  _saveEmailPreference() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      prefs.setString("email", email);
+    });
   }
 }

@@ -1,5 +1,5 @@
 
-List districtList = [
+List<String> districtList = [
   'Ampara',
   'Anuradhapura',
   'Badulla',

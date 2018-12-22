@@ -183,7 +183,7 @@ class _TeacherRegisterScreenState extends State<TeacherRegisterScreen> with Vali
   }
 
   void postRequest() async {
-    var url = 'https://frightful-warlock-77972.herokuapp.com/user/register';
+    var url = 'https://guarded-beyond-19031.herokuapp.com/register';
 
     var body = {
       'role': 'tutor',

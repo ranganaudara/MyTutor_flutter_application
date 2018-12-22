@@ -17,7 +17,7 @@ class HomeScreenState extends State<HomeScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Expanded(
-              flex: 6,
+              flex: 7,
               child: Container(
                 padding: EdgeInsets.symmetric(horizontal: 30.0),
                 color: Colors.black12,
@@ -46,7 +46,7 @@ class HomeScreenState extends State<HomeScreen> {
               ),
             ),
             Expanded(
-              flex: 7,
+              flex: 6,
               child: Container(
                 margin: EdgeInsets.symmetric(vertical: 20.0),
                 height: 200.0,

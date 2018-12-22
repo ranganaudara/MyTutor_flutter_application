@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 import 'package:tutor_app_new/src/mixins/validator_mixin.dart';
-import 'package:tutor_app_new/src/screens/student_screens/login_screen_student.dart';
+import 'package:tutor_app_new/src/screens/student_screens/login_screen_student/login_screen_student.dart';
 
 class StudentRegisterScreen extends StatefulWidget {
   @override
