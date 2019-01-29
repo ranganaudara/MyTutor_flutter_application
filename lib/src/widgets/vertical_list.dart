@@ -9,7 +9,7 @@ class VerticalList extends StatefulWidget {
 }
 
 class _VerticalListState extends State<VerticalList> {
-  String url = "https://randomuser.me/api/?results=10";
+  String url = "https://guarded-beyond-19031.herokuapp.com/highestRate";
   List data;
 
   @override
@@ -19,14 +19,18 @@ class _VerticalListState extends State<VerticalList> {
   }
 
   Future<String> makeRequest() async {
-    var response = await http.get(
-      Uri.encodeFull(url),
-      headers: {"Accept": "application/json"},
-    );
-    setState(() {
-      var extractdata = json.decode(response.body);
-      data = extractdata["results"];
-    });
+    try{
+      var response = await http.get(
+        Uri.encodeFull(url),
+        headers: {"Accept": "application/json"},
+      );
+      setState(() {
+        var res = json.decode(response.body);
+        data = res["tutorList"];
+      });
+    } catch (e){
+      print('Exception:=> $e');
+    }
   }
 
   @override
@@ -36,14 +40,17 @@ class _VerticalListState extends State<VerticalList> {
       itemBuilder: (BuildContext context, index) {
         return Card(
           child: ListTile(
-            leading: CircleAvatar(
-              backgroundImage:
-                  NetworkImage(data[index]["picture"]["thumbnail"]),
+            leading: _circleImage(data[index]["img"]),
+            title: Text(data[index]["name"]),
+            subtitle: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: <Widget>[
+                Icon(Icons.star,color: Colors.yellow,),
+                SizedBox(width: 10.0),
+                Text(data[index]["rate"]==null?'0':"${data[index]["rate"].toStringAsFixed(1)}"),
+              ],
             ),
-            title: Text(data[index]["name"]["first"]),
-            subtitle: Text(data[index]["location"]["city"]),
             onTap: () {
-              _createTeacher();
             },
           ),
         );
@@ -51,7 +58,18 @@ class _VerticalListState extends State<VerticalList> {
     );
   }
 
-  void _createTeacher(){
-
+  Widget _circleImage(String url) {
+    if (url == null) {
+      return CircleAvatar(
+        child: Image(image: AssetImage('assets/images/user.png')),
+        maxRadius: 20.0,
+        minRadius: 5.0,
+        backgroundColor: Colors.transparent,
+      );
+    } else {
+      return CircleAvatar(
+        backgroundImage: NetworkImage(url),
+      );
+    }
   }
 }
