@@ -7,6 +7,7 @@ import 'package:tutor_app_new/src/models/district_list.dart';
 
 class RequestWidget extends StatefulWidget {
   final myTutor;
+
   RequestWidget({Key key, this.myTutor}) : super(key: key);
 
   @override
@@ -14,7 +15,6 @@ class RequestWidget extends StatefulWidget {
 }
 
 class _RequestWidgetState extends State<RequestWidget> {
-
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   String requestUrl = "https://guarded-beyond-19031.herokuapp.com/makeRequest";
@@ -26,12 +26,7 @@ class _RequestWidgetState extends State<RequestWidget> {
   String _location;
   String _studentEmail;
 
-  List<String> subjectList = [
-    "Mathematics",
-    "Physics",
-    "Biology",
-    "Chemistry"
-  ];
+  List<String> subjectList = ["Mathematics", "Physics", "Biology", "Chemistry"];
 
   List<String> days = [
     "Sunday",
@@ -42,7 +37,6 @@ class _RequestWidgetState extends State<RequestWidget> {
     "Friday",
     "Satarday"
   ];
-
 
   @override
   void initState() {
@@ -69,16 +63,24 @@ class _RequestWidgetState extends State<RequestWidget> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                SizedBox(height: 15.0,),
+                SizedBox(
+                  height: 15.0,
+                ),
                 Text('Choose the Day', style: TextStyle(fontSize: 20.0)),
                 _chooseDay(),
-                SizedBox(height: 15.0,),
+                SizedBox(
+                  height: 15.0,
+                ),
                 Text('Choose the Subject', style: TextStyle(fontSize: 20.0)),
                 _chooseSubject(),
-                SizedBox(height: 15.0,),
+                SizedBox(
+                  height: 15.0,
+                ),
                 Text('Choose the Location', style: TextStyle(fontSize: 20.0)),
                 _chooseLocation(),
-                SizedBox(height: 15.0,),
+                SizedBox(
+                  height: 15.0,
+                ),
                 _submitButton(),
               ],
             ),
@@ -88,15 +90,19 @@ class _RequestWidgetState extends State<RequestWidget> {
     );
   }
 
-  Widget _submitButton(){
+  Widget _submitButton() {
     return Container(
       height: 40.0,
       width: 100.0,
       child: RaisedButton(
         color: Colors.blue[300],
         child: Text("Submit"),
-        onPressed: (){
-          _sendRequest();
+        onPressed: () {
+          if (_day == null || _location == null || _subject == null) {
+            _showSnackBar('Please fill out every field!');
+          } else {
+            _sendRequest();
+          }
         },
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20.0),
@@ -105,10 +111,10 @@ class _RequestWidgetState extends State<RequestWidget> {
     );
   }
 
-  Widget _chooseSubject(){
+  Widget _chooseSubject() {
     return Container(
       child: DropdownButton<String>(
-        items:subjectList.map((dropDownItem) {
+        items: subjectList.map((dropDownItem) {
           return DropdownMenuItem<String>(
             value: dropDownItem,
             child: Text(dropDownItem),
@@ -123,10 +129,10 @@ class _RequestWidgetState extends State<RequestWidget> {
     );
   }
 
-  Widget _chooseDay(){
+  Widget _chooseDay() {
     return Container(
       child: DropdownButton<String>(
-        items:days.map((dropDownItem) {
+        items: days.map((dropDownItem) {
           return DropdownMenuItem<String>(
             value: dropDownItem,
             child: Text(dropDownItem),
@@ -141,10 +147,10 @@ class _RequestWidgetState extends State<RequestWidget> {
     );
   }
 
-  Widget _chooseLocation(){
+  Widget _chooseLocation() {
     return Container(
       child: DropdownButton<String>(
-        items:districtList.map((dropDownItem) {
+        items: districtList.map((dropDownItem) {
           return DropdownMenuItem<String>(
             value: dropDownItem,
             child: Text(dropDownItem),
@@ -158,6 +164,7 @@ class _RequestWidgetState extends State<RequestWidget> {
       ),
     );
   }
+
   void _onDropDownSubjectSelected(String valueSelected) {
     setState(() {
       this._currentSubjectSelected = valueSelected;
@@ -179,21 +186,18 @@ class _RequestWidgetState extends State<RequestWidget> {
     });
   }
 
-
   void _sendRequest() async {
-
     Map<String, dynamic> requestBody = {
       "student": "$_studentEmail",
-      "tutor":"${widget.myTutor["email"]}",
-      "day":"$_day",
-      "location":"$_location",
-      "subject":"$_subject",
-
+      "tutor": "${widget.myTutor["email"]}",
+      "day": "$_day",
+      "location": "$_location",
+      "subject": "$_subject",
     };
-    http.post(requestUrl, body: requestBody).then((dynamic response){
+    http.post(requestUrl, body: requestBody).then((dynamic response) {
       Map<String, dynamic> res = json.decode(response.body);
       setState(() {
-        _showSnackBar(res);
+        _showSnackBar("Request sent Successfully!");
         print(res['success']);
       });
     });
@@ -206,15 +210,10 @@ class _RequestWidgetState extends State<RequestWidget> {
     });
   }
 
-  void _showSnackBar(Map<String, dynamic> res) {
+  void _showSnackBar(String msg) {
     final snackBar = SnackBar(
-      content: res['success']
-          ? Text(
-        'Successfull!',
-        style: TextStyle(color: Colors.white),
-      )
-          : Text(
-        'Oops! Something went wrong!',
+      content: Text(
+        '$msg',
         style: TextStyle(color: Colors.white),
       ),
       duration: Duration(seconds: 3),
@@ -222,5 +221,6 @@ class _RequestWidgetState extends State<RequestWidget> {
     );
     _scaffoldKey.currentState.showSnackBar(snackBar);
   }
-
 }
+
+//Map<String, dynamic> res,

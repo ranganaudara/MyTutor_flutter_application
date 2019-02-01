@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tutor_app_new/src/screens/choose_user_screen.dart';
-import 'package:tutor_app_new/src/widgets/vertical_list.dart';
+import 'package:tutor_app_new/src/widgets/top_tachers_list.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -13,53 +13,52 @@ class HomeScreenState extends State<HomeScreen> {
   build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+        child: ListView(
           children: <Widget>[
-            Expanded(
-              flex: 7,
-              child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 30.0),
-                color: Colors.black12,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    SizedBox(height: 12.0),
-                    logo(),
-                    welcomeText(),
-                    SizedBox(height: 8.0),
-                    _startButton(),
-                    SizedBox(height: 8.0),
-                  ],
+            Column(
+              children: <Widget>[
+                Container(
+                  height: 320.0,
+                  color: Colors.grey[300],
+                  padding: EdgeInsets.symmetric(horizontal: 30.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      SizedBox(height: 12.0),
+                      _logo(),
+                      _welcomeText(),
+                      SizedBox(height: 8.0),
+                      _startButton(),
+                      SizedBox(height: 10.0),
+                    ],
+                  ),
                 ),
-              ),
-            ),
-            SizedBox(height: 12.0),
-            Container(
-              child: Text(
-                'Trending Teachers',
-                style: TextStyle(
-                  fontSize: 20.0,
-                  fontWeight: FontWeight.bold,
+                SizedBox(height: 12.0),
+                Container(
+                  height: 15.0,
+                  child: Text(
+                    'Top Rated Teachers',
+                    style: TextStyle(
+                      fontSize: 20.0,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
-              ),
+                Container(
+                  margin: EdgeInsets.symmetric(vertical: 20.0),
+                  height: 300.0,
+                  child: TopTeachersList(),
+                )
+              ],
             ),
-            Expanded(
-              flex: 6,
-              child: Container(
-                margin: EdgeInsets.symmetric(vertical: 20.0),
-                height: 200.0,
-                child: VerticalList(),
-              ),
-            )
           ],
         ),
       ),
     );
   }
 
-  Widget logo() {
+  Widget _logo() {
     return Center(
       child: CircleAvatar(
         child: Image(image: AssetImage('assets/images/icon.png')),
@@ -70,14 +69,14 @@ class HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget welcomeText() {
+  Widget _welcomeText() {
     return Center(
       child: Column(
         children: <Widget>[
           Text(
-            "MyTutor",
+            "eTutor",
             style: TextStyle(
-              fontSize: 20.0,
+              fontSize: 30.0,
               fontWeight: FontWeight.bold,
               fontFamily: 'Pacifito',
             ),
@@ -87,7 +86,7 @@ class HomeScreenState extends State<HomeScreen> {
             child: Text('Join with us to find the best Teacher for your need!',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  fontSize: 20.0,
+                  fontSize: 18.0,
                   fontWeight: FontWeight.bold,
                 )),
           ),

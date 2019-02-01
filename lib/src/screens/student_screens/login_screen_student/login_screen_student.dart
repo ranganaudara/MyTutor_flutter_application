@@ -1,24 +1,23 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:tutor_app_new/src/screens/student_screens/loged_student_screen/loged_student_screen.dart';
+import 'package:tutor_app_new/src/screens/student_screens/logged_student_screen/logged_student_screen.dart';
 import 'package:tutor_app_new/src/screens/student_screens/register_screen_student/register_screen_student.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../mixins/validator_mixin.dart';
-
 class StudentLoginScreen extends StatefulWidget {
   @override
   _StudentLoginScreenState createState() => _StudentLoginScreenState();
 }
 
-class _StudentLoginScreenState extends State<StudentLoginScreen> with ValidatorMixin {
-
+class _StudentLoginScreenState extends State<StudentLoginScreen>
+    with ValidatorMixin {
   final _formKey = GlobalKey<FormState>();
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   String userName;
   String password;
   String invalidMsg = "";
-  String email  = "";
+  String email = "";
 
   //<<<<<<<<<< Snack Bar >>>>>>>>
 
@@ -141,12 +140,11 @@ class _StudentLoginScreenState extends State<StudentLoginScreen> with ValidatorM
           minWidth: 150.0,
           height: 45.0,
           onPressed: () {
-            if (_formKey.currentState.validate()) {
-              _formKey.currentState.save();
-              postRequest();
-              alertLoading();
-
-            }
+//            if (_formKey.currentState.validate()) {
+//              _formKey.currentState.save();
+//              loginRequest();
+//            }
+            loginRequest();
           },
           child: Text('Log In'),
         ),
@@ -162,9 +160,7 @@ class _StudentLoginScreenState extends State<StudentLoginScreen> with ValidatorM
           color: Colors.black54,
         ),
       ),
-      onPressed: () {
-
-      },
+      onPressed: () {},
     );
   }
 
@@ -185,36 +181,61 @@ class _StudentLoginScreenState extends State<StudentLoginScreen> with ValidatorM
     );
   }
 
-  void postRequest() async {
+  void loginRequest() async {
     var url = 'https://guarded-beyond-19031.herokuapp.com/login';
 
-    var body = {'username': userName, 'password': password, 'role': 'student'};
+//    var body = {
+//      "username": "$userName",
+//      "password": "$password",
+//      "role": "student"
+//    };
+    var body = {
+      "username": "abc@email.com",
+      "password": "12345678",
+      "role": "student"
+    };
 
-    http.post(url, body: body).then((dynamic response) {
-      Map<String, dynamic> res = json.decode(response.body);
-      setState(() {
-        email = res['user']['email'];
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return buildLoadingDialog();
+        });
+
+      http.post(url, body: body).then((dynamic response) {
+        Map<String, dynamic> res = json.decode(response.body);
+        Navigator.pop(context);
+        if (res['success'] == true && res['block'] == false) {
+          setState(() {
+            email = res['user']['email'];
+            userName = res['user']['name'];
+          });
+          _savePreference();
+          Navigator.of(context).pop();
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => LoggedInStudent()),
+          );
+        } else if (res['success'] == true && res['block'] == true) {
+          invalidAuthUserBlocked();
+        } else if (res['success'] == false && res['block'] == false) {
+          invalidAuth();
+        } else {
+          somethingError();
+        }
       });
-      _saveEmailPreference();
-
-
-      if (res['success'] == true && res['block'] == false) {
-        Navigator.of(context).pop();
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => LogedInStudent()),
-        );
-      }else if(res['success'] == true && res['block'] == true) {
-        invalidAuthUserBlocked();
-      }else{
-        invalidAuth();
-      }
-    });
   }
 
   void invalidAuth() {
     setState(() {
       this.invalidMsg = "Invalid Username or Password";
+      _showSnackBar(invalidMsg);
+      _formKey.currentState.reset();
+    });
+  }
+
+  void somethingError() {
+    setState(() {
+      this.invalidMsg = "Something went wrong";
       _showSnackBar(invalidMsg);
       _formKey.currentState.reset();
     });
@@ -228,26 +249,25 @@ class _StudentLoginScreenState extends State<StudentLoginScreen> with ValidatorM
     });
   }
 
-  void alertLoading() {
-    // flutter defined function
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        // return object of type Dialog
-        return Container(
-          width: 20.0,
-          height: 20.0,
-          child: null,
-        );
-      },
-    );
-  }
-
-
-  _saveEmailPreference() async {
+  _savePreference() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       prefs.setString("email", email);
+      prefs.setString("name", userName);
     });
+  }
+
+  Widget buildLoadingDialog() {
+    return AlertDialog(
+      shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(10.0))),
+      content: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: ListTile(
+          leading: CircularProgressIndicator(),
+          title: Text('Loading...'),
+        ),
+      ),
+    );
   }
 }

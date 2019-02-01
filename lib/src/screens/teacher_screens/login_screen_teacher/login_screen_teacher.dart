@@ -1,19 +1,25 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:tutor_app_new/src/screens/teacher_screens/register_screen_teacher.dart';
-import 'package:tutor_app_new/src/screens/tab_screen.dart';
-
-import '../../mixins/validator_mixin.dart';
+import 'package:tutor_app_new/src/screens/teacher_screens/logged_teacher_screen/logged_teacher_screen.dart';
+import 'package:tutor_app_new/src/screens/teacher_screens/register_screen_teacher/register_screen_teacher.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../../../mixins/validator_mixin.dart';
 
 class TeacherLoginScreen extends StatefulWidget {
   @override
   _TeacherLoginScreenState createState() => _TeacherLoginScreenState();
 }
 
-class _TeacherLoginScreenState extends State<TeacherLoginScreen> with ValidatorMixin {
+class _TeacherLoginScreenState extends State<TeacherLoginScreen>
+    with ValidatorMixin {
+
   final _formKey = GlobalKey<FormState>();
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  String tutorFName;
+  String tutorLName;
+  String tutorEmail;
   String userName;
   String password;
   String invalidMsg = "";
@@ -77,7 +83,9 @@ class _TeacherLoginScreenState extends State<TeacherLoginScreen> with ValidatorM
     return Center(
       child: Column(
         children: <Widget>[
-          SizedBox(height: 10.0,),
+          SizedBox(
+            height: 10.0,
+          ),
           Text('Log in to connect with your student...',
               textAlign: TextAlign.center,
               style: TextStyle(
@@ -115,8 +123,7 @@ class _TeacherLoginScreenState extends State<TeacherLoginScreen> with ValidatorM
         icon: Icon(Icons.keyboard),
         labelText: 'Password',
         border: OutlineInputBorder(
-            borderRadius: const BorderRadius.all(Radius.circular(20.0))
-        ),
+            borderRadius: const BorderRadius.all(Radius.circular(20.0))),
       ),
       validator: passwordValidator,
       onSaved: (String value) {
@@ -137,11 +144,11 @@ class _TeacherLoginScreenState extends State<TeacherLoginScreen> with ValidatorM
           minWidth: 150.0,
           height: 45.0,
           onPressed: () {
-            if (_formKey.currentState.validate()) {
-              _formKey.currentState.save();
-              postRequest();
-              alertLoading();
-            }
+//            if (_formKey.currentState.validate()) {
+//              _formKey.currentState.save();
+//              loginRequest();
+//            }
+          loginRequest();
           },
           child: Text('Log In'),
         ),
@@ -178,22 +185,52 @@ class _TeacherLoginScreenState extends State<TeacherLoginScreen> with ValidatorM
     );
   }
 
-  void postRequest() async {
-    var url = 'https://frightful-warlock-77972.herokuapp.com/user/authenticate';
+  void loginRequest() async {
+    var url = 'https://guarded-beyond-19031.herokuapp.com/login';
 
-    var body = {'userName': userName, 'password': password};
+//    var body = {
+//      'userName': userName,
+//      'password': password,
+//        'role': 'tutor',
+//    };
+
+    var body = {
+      'username': 'lkj@lkj',
+      'password': 'lkjlkjlkj',
+      'role':'tutor'
+    };
+    print(body);
+
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return buildLoadingDialog();
+        });
 
     http.post(url, body: body).then((dynamic response) {
       Map<String, dynamic> res = json.decode(response.body);
       print(res);
       if (res['success'] == true) {
+
+        setState(() {
+          tutorFName = res['user']['fname'];
+          tutorLName = res['user']['lname'];
+          tutorEmail = res['user']['email'];
+          _savePreference();
+        });
+
+
         Navigator.of(context).pop();
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => TabBarDemo()),
+          MaterialPageRoute(builder: (context) => LoggedTeacherScreen()),
         );
-      } else {
+      } else if (res['success'] == true && res['block'] == true) {
+        invalidAuthUserBlocked();
+      } else if (res['success'] == false && res['block'] == false) {
         invalidAuth();
+      } else {
+        somethingError();
       }
     });
   }
@@ -206,18 +243,43 @@ class _TeacherLoginScreenState extends State<TeacherLoginScreen> with ValidatorM
     });
   }
 
-  void alertLoading() {
-    // flutter defined function
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        // return object of type Dialog
-        return Container(
-          width: 20.0,
-          height: 20.0,
-          child: null,
-        );
-      },
+  void somethingError() {
+    setState(() {
+      this.invalidMsg = "Something went wrong";
+      _showSnackBar(invalidMsg);
+      _formKey.currentState.reset();
+    });
+  }
+
+  void invalidAuthUserBlocked() {
+    setState(() {
+      this.invalidMsg = "Can't login! You are blocked!";
+      _showSnackBar(invalidMsg);
+      _formKey.currentState.reset();
+    });
+  }
+
+  Widget buildLoadingDialog() {
+    return AlertDialog(
+      shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(10.0))),
+      content: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: ListTile(
+          leading: CircularProgressIndicator(),
+          title: Text('Loading...'),
+        ),
+      ),
     );
   }
+
+  _savePreference() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      prefs.setString("myFName", tutorFName);
+      prefs.setString("myLName", tutorLName);
+      prefs.setString("email", tutorEmail);
+    });
+  }
+
 }

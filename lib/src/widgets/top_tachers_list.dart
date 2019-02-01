@@ -3,12 +3,12 @@ import 'package:http/http.dart' as http;
 import 'dart:async';
 import 'dart:convert';
 
-class VerticalList extends StatefulWidget {
+class TopTeachersList extends StatefulWidget {
   @override
-  _VerticalListState createState() => _VerticalListState();
+  _TopTeachersListState createState() => _TopTeachersListState();
 }
 
-class _VerticalListState extends State<VerticalList> {
+class _TopTeachersListState extends State<TopTeachersList> {
   String url = "https://guarded-beyond-19031.herokuapp.com/highestRate";
   List data;
 
@@ -27,6 +27,8 @@ class _VerticalListState extends State<VerticalList> {
       setState(() {
         var res = json.decode(response.body);
         data = res["tutorList"];
+        print(data);
+
       });
     } catch (e){
       print('Exception:=> $e');
@@ -72,4 +74,6 @@ class _VerticalListState extends State<VerticalList> {
       );
     }
   }
+
+
 }

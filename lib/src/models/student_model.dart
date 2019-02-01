@@ -3,21 +3,21 @@ class Student {
   String mobile;
   String location;
   String email;
-  int status;
+  String image;
 
   Student(
     this.name,
     this.mobile,
     this.location,
     this.email,
-    this.status,
+    this.image,
   );
 
   Student.fromJson(Map<String, dynamic> parsedJson) {
-    this.name = parsedJson["user"]["name"];
-    this.mobile = parsedJson["user"]["mobile"];
-    this.location = parsedJson["user"]["location"];
-    this.email = parsedJson["user"]["email"];
-    this.status = parsedJson["user"]["status"];
+    this.name = parsedJson["profile"]["name"];
+    this.mobile = parsedJson["profile"]["mobile"];
+    this.location = parsedJson["profile"]["location"];
+    this.email = parsedJson["profile"]["email"];
+    this.image = parsedJson["profile"]["status"];
   }
 }

@@ -2,16 +2,21 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:tutor_app_new/src/models/district_list.dart';
-import 'package:tutor_app_new/src/screens/teacher_screens/teacher_profile.dart';
+import 'package:tutor_app_new/src/screens/student_screens/logged_student_screen/widgets/drawer_student.dart';
+import 'package:tutor_app_new/src/screens/student_screens/logged_student_screen/widgets/requests_tab_student.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tutor_app_new/src/screens/student_screens/teacher_profile_student_view/teacher_profile_student_view.dart';
 
-
-class LogedInStudent extends StatefulWidget {
+class LoggedInStudent extends StatefulWidget {
   @override
-  _LogedInStudentState createState() => _LogedInStudentState();
+  _LoggedInStudentState createState() => _LoggedInStudentState();
 }
 
-class _LogedInStudentState extends State<LogedInStudent> {
+class _LoggedInStudentState extends State<LoggedInStudent> {
+  NetworkStatus _networkStatus;
+
+  String myName;
+  String myEmail;
   String _currentSubjectSelected;
   String _currentDistrictSelected;
   final searchController = TextEditingController();
@@ -35,8 +40,10 @@ class _LogedInStudentState extends State<LogedInStudent> {
   @override
   void initState() {
     super.initState();
+    _networkStatus = NetworkStatus.LOADING;
     this.getAllTutors();
     this.getAllSubjects();
+    _getPreferences();
   }
 
   //<<<<<<<<<< Snack Bar >>>>>>>>>>>>
@@ -64,6 +71,7 @@ class _LogedInStudentState extends State<LogedInStudent> {
 
     return "Sucess";
   }
+
 //<<<<<<<<<<Get Tutors>>>>>>>>>>
 
   Future<String> getAllTutors() async {
@@ -76,6 +84,7 @@ class _LogedInStudentState extends State<LogedInStudent> {
       print(res);
 
       setState(() {
+        _networkStatus = NetworkStatus.COMPLETE;
         allTutors = res["user"];
         if (allTutors.isEmpty) {
           _showSnackBar();
@@ -89,12 +98,16 @@ class _LogedInStudentState extends State<LogedInStudent> {
 
   @override
   Widget build(BuildContext context) {
+    //<<<<<<<<<<<<<Splitting Name>>>>>>>>>>>>>>>
+    List<String> arr = myName.split(' ');
+    myName = arr[0];
+
     return DefaultTabController(
       length: 3,
       child: Scaffold(
         key: _scaffoldKey,
         appBar: AppBar(
-          title: Center(child: Text("Hello User!")),
+          title: Center(child: Text("Hello $myName!")),
           actions: <Widget>[
             IconButton(
               icon: Icon(Icons.notifications),
@@ -113,7 +126,7 @@ class _LogedInStudentState extends State<LogedInStudent> {
               ),
               Tab(
                 icon: Icon(Icons.book),
-                text: 'Classes',
+                text: 'Requests',
               ),
               Tab(
                 icon: Icon(Icons.chat),
@@ -122,10 +135,14 @@ class _LogedInStudentState extends State<LogedInStudent> {
             ],
           ),
         ),
-        drawer: Drawer(),
+        drawer: CustomDrawer(
+          name: myName,
+          email: myEmail,
+        ),
         body: TabBarView(
           children: <Widget>[
-            _containerBox(),
+            _teachersTab(),
+            RequestsTab(),
             Icon(Icons.chat_bubble_outline),
           ],
         ),
@@ -140,16 +157,18 @@ class _LogedInStudentState extends State<LogedInStudent> {
         itemBuilder: (BuildContext context, index) {
           return Card(
             child: ListTile(
-              leading: CircleAvatar(
-                backgroundImage:
-                NetworkImage(allTutors[index]["imgURL"]),
-              ),
-              title: Text(allTutors[index]["fname"]+" "+allTutors[index]["lname"]),
+              leading: _circleImage(allTutors[index]["imgURL"]),
+              title: Text(
+                  allTutors[index]["fname"] + " " + allTutors[index]["lname"]),
               subtitle: Text(allTutors[index]["location"]),
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => TeacherProfile(myTutor: allTutors[index],)),
+                  MaterialPageRoute(
+                    builder: (context) => TeacherProfileStudentView(
+                          myTutor: allTutors[index],
+                        ),
+                  ),
                 );
               },
             ),
@@ -177,11 +196,11 @@ class _LogedInStudentState extends State<LogedInStudent> {
       items: subjectList == null
           ? null
           : subjectList.map((dropDownItem) {
-        return DropdownMenuItem<String>(
-          value: dropDownItem,
-          child: Text(dropDownItem),
-        );
-      }).toList(),
+              return DropdownMenuItem<String>(
+                value: dropDownItem,
+                child: Text(dropDownItem),
+              );
+            }).toList(),
       onChanged: (String valueSelected) {
         _onDropDownSubjectSelected(valueSelected);
       },
@@ -195,11 +214,11 @@ class _LogedInStudentState extends State<LogedInStudent> {
       items: districtList.isEmpty
           ? null
           : districtList.map((dropDownItem) {
-        return DropdownMenuItem<String>(
-          value: dropDownItem,
-          child: Text(dropDownItem),
-        );
-      }).toList(),
+              return DropdownMenuItem<String>(
+                value: dropDownItem,
+                child: Text(dropDownItem),
+              );
+            }).toList(),
       onChanged: (String valueSelected) {
         _onDropDownDistrictSelected(valueSelected);
       },
@@ -245,33 +264,58 @@ class _LogedInStudentState extends State<LogedInStudent> {
     );
   }
 
-  Widget _containerBox() {
-    return Column(
-      children: <Widget>[
-        Expanded(
-            flex: 1,
-            child: ListView(
-              children: <Widget>[
-                SizedBox(
-                  height: 20.0,
-                ),
-                _title(),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    _subjectButton(),
-                    _districtButton(),
-                  ],
-                ),
-                _searchBox(),
-              ],
-            )),
-        Expanded(
-          flex: 1,
-          child: _teachersList(),
-        ),
-      ],
-    );
+  Widget _teachersTab() {
+    switch (_networkStatus) {
+      case NetworkStatus.LOADING:
+        return Center(
+          child: CircularProgressIndicator(),
+        );
+      case NetworkStatus.COMPLETE:
+        return Column(
+          children: <Widget>[
+            Expanded(
+              flex: 1,
+              child: ListView(
+                children: <Widget>[
+                  SizedBox(height: 20.0),
+                  _title(),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      _subjectButton(),
+                      _districtButton(),
+                    ],
+                  ),
+                  _searchBox(),
+                ],
+              ),
+            ),
+            Expanded(
+              flex: 1,
+              child: _teachersList(),
+            ),
+          ],
+        );
+      case NetworkStatus.FAILED:
+        return Center(
+          child: Text("Loading failed! Check Connection..."),
+        );
+    }
+  }
+
+  Widget _circleImage(String url) {
+    if (url == null) {
+      return CircleAvatar(
+        child: Image(image: AssetImage('assets/images/user.png')),
+        maxRadius: 20.0,
+        minRadius: 5.0,
+        backgroundColor: Colors.transparent,
+      );
+    } else {
+      return CircleAvatar(
+        backgroundImage: NetworkImage(url),
+      );
+    }
   }
 
   void _onDropDownSubjectSelected(String valueSelected) {
@@ -289,11 +333,14 @@ class _LogedInStudentState extends State<LogedInStudent> {
       getAllTutors();
     });
   }
-  _getEmailPreference() async {
+
+  _getPreferences() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
-      String myEmail = prefs.getString("email");
-      print(myEmail);
+      myName = prefs.getString("name");
+      myEmail = prefs.getString("email");
     });
   }
 }
+
+enum NetworkStatus { LOADING, COMPLETE, FAILED }

@@ -3,18 +3,22 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 import 'package:tutor_app_new/src/mixins/validator_mixin.dart';
-import 'package:tutor_app_new/src/screens/teacher_screens/login_screen_teacher.dart';
+import 'package:tutor_app_new/src/screens/teacher_screens/login_screen_teacher/login_screen_teacher.dart';
 
 class TeacherRegisterScreen extends StatefulWidget {
   @override
   _TeacherRegisterScreenState createState() => _TeacherRegisterScreenState();
 }
 
-class _TeacherRegisterScreenState extends State<TeacherRegisterScreen> with ValidatorMixin {
-  GlobalKey<FormState> formKey = GlobalKey<FormState>();
+class _TeacherRegisterScreenState extends State<TeacherRegisterScreen>
+    with ValidatorMixin {
+  GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
+  String invalidMsg = "";
   String email;
   String password;
+  String checkPassword;
   String firstName;
   String lastName;
   String city;
@@ -24,10 +28,11 @@ class _TeacherRegisterScreenState extends State<TeacherRegisterScreen> with Vali
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       backgroundColor: Colors.white,
       body: Center(
         child: Form(
-          key: formKey,
+          key: _formKey,
           child: ListView(
             shrinkWrap: true,
             padding: EdgeInsets.only(left: 24.0, right: 24.0),
@@ -43,6 +48,8 @@ class _TeacherRegisterScreenState extends State<TeacherRegisterScreen> with Vali
               _emailField(),
               SizedBox(height: 8.0),
               _passwordField(),
+              SizedBox(height: 8.0),
+              _confirmPasswordField(),
               SizedBox(height: 8.0),
               Container(margin: EdgeInsets.only(bottom: 25.0)),
               _registerButton(),
@@ -69,12 +76,11 @@ class _TeacherRegisterScreenState extends State<TeacherRegisterScreen> with Vali
       child: Column(
         children: <Widget>[
           Text(
-            "MyTutor",
+            "eTutor",
             style: TextStyle(
-              fontSize: 20.0,
-              fontWeight: FontWeight.bold,
-              fontFamily: "Pacifito"
-            ),
+                fontSize: 25.0,
+                fontWeight: FontWeight.bold,
+                fontFamily: "Pacifito"),
           ),
           Text(
             'Enter your details',
@@ -128,7 +134,6 @@ class _TeacherRegisterScreenState extends State<TeacherRegisterScreen> with Vali
     );
   }
 
-
   Widget _emailField() {
     return TextFormField(
       decoration: InputDecoration(
@@ -161,6 +166,21 @@ class _TeacherRegisterScreenState extends State<TeacherRegisterScreen> with Vali
     );
   }
 
+  Widget _confirmPasswordField() {
+    return TextFormField(
+      decoration: InputDecoration(
+        labelText: 'Confirm Password',
+        hintText: 'password',
+        border: OutlineInputBorder(
+            borderRadius: const BorderRadius.all(Radius.circular(20.0))),
+      ),
+      obscureText: true,
+      validator: confirmPassword,
+      onSaved: (String value) {
+        this.checkPassword = value;
+      },
+    );
+  }
 
   Widget _registerButton() {
     return Material(
@@ -172,9 +192,9 @@ class _TeacherRegisterScreenState extends State<TeacherRegisterScreen> with Vali
         minWidth: 150.0,
         height: 45.0,
         onPressed: () {
-          if (formKey.currentState.validate()) {
-            formKey.currentState.save();
-            postRequest();
+          if (_formKey.currentState.validate()) {
+            _formKey.currentState.save();
+            registerRequest();
           }
         },
         child: Text('Register'),
@@ -182,7 +202,7 @@ class _TeacherRegisterScreenState extends State<TeacherRegisterScreen> with Vali
     );
   }
 
-  void postRequest() async {
+  void registerRequest() async {
     var url = 'https://guarded-beyond-19031.herokuapp.com/register';
 
     var body = {
@@ -193,6 +213,12 @@ class _TeacherRegisterScreenState extends State<TeacherRegisterScreen> with Vali
       'password': password,
     };
 
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return buildLoadingDialog();
+        });
+
     print(body);
 
     http.post(url, body: body).then((dynamic response) {
@@ -200,12 +226,48 @@ class _TeacherRegisterScreenState extends State<TeacherRegisterScreen> with Vali
       print(res);
       if (res['success'] == true) {
         print(res['msg']);
-        Navigator.of(context).pop();
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => TeacherLoginScreen()),
+        Navigator.of(context).pushNamedAndRemoveUntil(
+          '/teacher_login',
+          ModalRoute.withName('/choose_user'),
         );
+      } else {
+        Navigator.of(context).pop();
+        invalidAuth();
       }
     });
+  }
+
+  Widget buildLoadingDialog() {
+    return AlertDialog(
+      shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(10.0))),
+      content: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: ListTile(
+          leading: CircularProgressIndicator(),
+          title: Text('Loading...'),
+        ),
+      ),
+    );
+  }
+
+  void invalidAuth() {
+    setState(() {
+      this.invalidMsg = "This user already exists!";
+      _showSnackBar(invalidMsg);
+      _formKey.currentState.reset();
+    });
+  }
+
+  _showSnackBar(String invalidMsg) {
+    final snackBar = SnackBar(
+      content: Text(
+        invalidMsg,
+        style: TextStyle(color: Colors.white),
+      ),
+      duration: Duration(seconds: 3),
+      backgroundColor: Colors.blueGrey,
+    );
+    _scaffoldKey.currentState.showSnackBar(snackBar);
   }
 }

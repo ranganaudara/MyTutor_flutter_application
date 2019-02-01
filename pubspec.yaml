@@ -13,10 +13,14 @@ environment:
   sdk: ">=2.0.0-dev.68.0 <3.0.0"
 
 dependencies:
+  http: ^0.12.0+1
   flutter_rating: ^0.0.2
   shared_preferences: ^0.4.3
+  progress_indicators: ^0.1.2
   flutter:
     sdk: flutter
+  carousel_slider: ^1.0.1
+  cached_network_image: ^0.5.1
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -47,6 +51,9 @@ flutter:
   - assets/images/student_login.png
   - assets/images/teacher_login.png
   - assets/images/question.png
+  - assets/images/user.png
+  - assets/images/stationary.jpg
+  - assets/images/InsomniacIcon.png
 
 
 

@@ -10,9 +10,13 @@ class StudentRegisterScreen extends StatefulWidget {
   _StudentRegisterScreenState createState() => _StudentRegisterScreenState();
 }
 
-class _StudentRegisterScreenState extends State<StudentRegisterScreen> with ValidatorMixin {
-  GlobalKey<FormState> formKey = GlobalKey<FormState>();
+class _StudentRegisterScreenState extends State<StudentRegisterScreen>
+    with ValidatorMixin {
+  String url = 'https://guarded-beyond-19031.herokuapp.com/register';
+  GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
+  String invalidMsg = "";
   String email;
   String password;
   String firstName;
@@ -20,14 +24,16 @@ class _StudentRegisterScreenState extends State<StudentRegisterScreen> with Vali
   String city;
   String contactNumber;
   String userName;
+  String checkPassword;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       backgroundColor: Colors.white,
       body: Center(
         child: Form(
-          key: formKey,
+          key: _formKey,
           child: ListView(
             shrinkWrap: true,
             padding: EdgeInsets.only(left: 24.0, right: 24.0),
@@ -43,6 +49,8 @@ class _StudentRegisterScreenState extends State<StudentRegisterScreen> with Vali
               _emailField(),
               SizedBox(height: 8.0),
               _passwordField(),
+              SizedBox(height: 8.0),
+              _confirmPasswordField(),
               SizedBox(height: 8.0),
               Container(margin: EdgeInsets.only(bottom: 25.0)),
               _registerButton(),
@@ -69,12 +77,11 @@ class _StudentRegisterScreenState extends State<StudentRegisterScreen> with Vali
       child: Column(
         children: <Widget>[
           Text(
-            "MyTutor",
+            "eTutor",
             style: TextStyle(
-              fontSize: 20.0,
-              fontWeight: FontWeight.bold,
-              fontFamily: "Pacifito"
-            ),
+                fontSize: 25.0,
+                fontWeight: FontWeight.bold,
+                fontFamily: "Pacifito"),
           ),
           Text(
             'Enter your details',
@@ -128,7 +135,6 @@ class _StudentRegisterScreenState extends State<StudentRegisterScreen> with Vali
     );
   }
 
-
   Widget _emailField() {
     return TextFormField(
       decoration: InputDecoration(
@@ -161,6 +167,21 @@ class _StudentRegisterScreenState extends State<StudentRegisterScreen> with Vali
     );
   }
 
+  Widget _confirmPasswordField() {
+    return TextFormField(
+      decoration: InputDecoration(
+        labelText: 'Confirm Password',
+        hintText: 'password',
+        border: OutlineInputBorder(
+            borderRadius: const BorderRadius.all(Radius.circular(20.0))),
+      ),
+      obscureText: true,
+      validator: confirmPassword,
+      onSaved: (String value) {
+        this.checkPassword = value;
+      },
+    );
+  }
 
   Widget _registerButton() {
     return Material(
@@ -172,9 +193,9 @@ class _StudentRegisterScreenState extends State<StudentRegisterScreen> with Vali
         minWidth: 150.0,
         height: 45.0,
         onPressed: () {
-          if (formKey.currentState.validate()) {
-            formKey.currentState.save();
-            postRequest();
+          if (_formKey.currentState.validate()) {
+            _formKey.currentState.save();
+            _sendUserDetails();
           }
         },
         child: Text('Register'),
@@ -182,9 +203,7 @@ class _StudentRegisterScreenState extends State<StudentRegisterScreen> with Vali
     );
   }
 
-  void postRequest() async {
-    var url = 'https://guarded-beyond-19031.herokuapp.com/register';
-
+  void _sendUserDetails() async {
     var body = {
       'fname': firstName,
       'lname': lastName,
@@ -200,12 +219,31 @@ class _StudentRegisterScreenState extends State<StudentRegisterScreen> with Vali
       print(res);
       if (res['success'] == true) {
         print(res['msg']);
-        Navigator.of(context).pop();
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => StudentLoginScreen()),
+        Navigator.of(context).pushNamedAndRemoveUntil(
+          '/student_login',
+          (Route<dynamic> route) => false,
         );
       }
     });
+  }
+
+  void invalidAuth() {
+    setState(() {
+      this.invalidMsg = "This user already exists!";
+      _showSnackBar(invalidMsg);
+      _formKey.currentState.reset();
+    });
+  }
+
+  _showSnackBar(String invalidMsg) {
+    final snackBar = SnackBar(
+      content: Text(
+        invalidMsg,
+        style: TextStyle(color: Colors.white),
+      ),
+      duration: Duration(seconds: 3),
+      backgroundColor: Colors.blueGrey,
+    );
+    _scaffoldKey.currentState.showSnackBar(snackBar);
   }
 }
