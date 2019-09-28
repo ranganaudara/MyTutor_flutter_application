@@ -111,7 +111,7 @@ class HomeScreenState extends State<HomeScreen> {
           );
         },
         child: Text(
-          'Start Using MyTutor...',
+          'Start Using eTutor...',
           style: TextStyle(fontSize: 16.0, color: Colors.black87),
         ),
       ),

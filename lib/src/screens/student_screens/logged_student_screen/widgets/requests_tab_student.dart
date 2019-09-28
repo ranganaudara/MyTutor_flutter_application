@@ -9,8 +9,6 @@ class RequestsTab extends StatefulWidget {
 }
 
 class _RequestsTabState extends State<RequestsTab> {
-
-
   NetworkStatus _networkStatus;
   List sentReqList;
 
@@ -33,12 +31,22 @@ class _RequestsTabState extends State<RequestsTab> {
         );
 
       case NetworkStatus.COMPLETE:
-        return Container(
-          child: Container(
-            child: _sentReqList(),
-          ),
-        );
-
+        if (sentReqList.isEmpty) {
+          return Container(
+            child: Container(
+              child: Center(
+                child: Text("Nothing to show..."),
+              ),
+            ),
+          );
+        } else {
+          return Container(
+            child: Container(
+              child: _sentReqList(),
+            ),
+          );
+        }
+        break;
       case NetworkStatus.FAILED:
         return Container(
           child: Center(
@@ -140,7 +148,7 @@ class _RequestsTabState extends State<RequestsTab> {
         trailing: IconButton(
             icon: Icon(Icons.clear),
             onPressed: () {
-             reqId = sentReqList[index]["id"];
+              reqId = sentReqList[index]["id"];
               listItemIndex = index;
               showDialog(
                   context: context,
@@ -154,7 +162,8 @@ class _RequestsTabState extends State<RequestsTab> {
 
   Widget _warningDialog() {
     return AlertDialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(10.0))),
+      shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(10.0))),
       contentPadding: EdgeInsets.all(5.0),
       title: Text("Do you want to cancel this request?"),
       content: ButtonBar(
@@ -187,7 +196,8 @@ class _RequestsTabState extends State<RequestsTab> {
 
   Widget _resultDialog(String msg) {
     return AlertDialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(10.0))),
+      shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(10.0))),
       contentPadding: EdgeInsets.all(0.0),
       title: Text(msg),
       content: ButtonBar(

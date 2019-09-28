@@ -140,11 +140,11 @@ class _StudentLoginScreenState extends State<StudentLoginScreen>
           minWidth: 150.0,
           height: 45.0,
           onPressed: () {
-//            if (_formKey.currentState.validate()) {
-//              _formKey.currentState.save();
-//              loginRequest();
-//            }
-            loginRequest();
+            if (_formKey.currentState.validate()) {
+              _formKey.currentState.save();
+              loginRequest();
+            }
+            //loginRequest();
           },
           child: Text('Log In'),
         ),
@@ -184,16 +184,16 @@ class _StudentLoginScreenState extends State<StudentLoginScreen>
   void loginRequest() async {
     var url = 'https://guarded-beyond-19031.herokuapp.com/login';
 
-//    var body = {
-//      "username": "$userName",
-//      "password": "$password",
-//      "role": "student"
-//    };
     var body = {
-      "username": "abc@email.com",
-      "password": "12345678",
+      "username": "$userName",
+      "password": "$password",
       "role": "student"
     };
+//    var body = {
+//      "username": "abc@email.com",
+//      "password": "12345678",
+//      "role": "student"
+//    };
 
     showDialog(
         context: context,
@@ -210,15 +210,13 @@ class _StudentLoginScreenState extends State<StudentLoginScreen>
             userName = res['user']['name'];
           });
           _savePreference();
-          Navigator.of(context).pop();
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => LoggedInStudent()),
-          );
+
         } else if (res['success'] == true && res['block'] == true) {
           invalidAuthUserBlocked();
         } else if (res['success'] == false && res['block'] == false) {
           invalidAuth();
+        } else if(res['success'] == true && res['confiremed'] == false){
+          invalidAuthNotConfirmed();
         } else {
           somethingError();
         }
@@ -228,6 +226,14 @@ class _StudentLoginScreenState extends State<StudentLoginScreen>
   void invalidAuth() {
     setState(() {
       this.invalidMsg = "Invalid Username or Password";
+      _showSnackBar(invalidMsg);
+      _formKey.currentState.reset();
+    });
+  }
+
+  void invalidAuthNotConfirmed() {
+    setState(() {
+      this.invalidMsg = "You have not varify your email!";
       _showSnackBar(invalidMsg);
       _formKey.currentState.reset();
     });
@@ -254,6 +260,13 @@ class _StudentLoginScreenState extends State<StudentLoginScreen>
     setState(() {
       prefs.setString("email", email);
       prefs.setString("name", userName);
+
+      Navigator.of(context).pop();
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => LoggedInStudent()),
+      );
+
     });
   }
 
@@ -270,4 +283,5 @@ class _StudentLoginScreenState extends State<StudentLoginScreen>
       ),
     );
   }
+
 }

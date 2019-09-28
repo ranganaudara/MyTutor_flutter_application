@@ -144,11 +144,11 @@ class _TeacherLoginScreenState extends State<TeacherLoginScreen>
           minWidth: 150.0,
           height: 45.0,
           onPressed: () {
-//            if (_formKey.currentState.validate()) {
-//              _formKey.currentState.save();
-//              loginRequest();
-//            }
-          loginRequest();
+            if (_formKey.currentState.validate()) {
+              _formKey.currentState.save();
+              loginRequest();
+            }
+//          loginRequest();
           },
           child: Text('Log In'),
         ),
@@ -188,17 +188,17 @@ class _TeacherLoginScreenState extends State<TeacherLoginScreen>
   void loginRequest() async {
     var url = 'https://guarded-beyond-19031.herokuapp.com/login';
 
-//    var body = {
-//      'userName': userName,
-//      'password': password,
-//        'role': 'tutor',
-//    };
-
     var body = {
-      'username': 'lkj@lkj',
-      'password': 'lkjlkjlkj',
-      'role':'tutor'
+      'username': userName,
+      'password': password,
+        'role': 'tutor',
     };
+
+//    var body = {
+//      'username': 'lkj@lkj',
+//      'password': 'lkjlkjlkj',
+//      'role':'tutor'
+//    };
     print(body);
 
     showDialog(
@@ -207,7 +207,7 @@ class _TeacherLoginScreenState extends State<TeacherLoginScreen>
           return buildLoadingDialog();
         });
 
-    http.post(url, body: body).then((dynamic response) {
+    await http.post(url, body: body).then((dynamic response) {
       Map<String, dynamic> res = json.decode(response.body);
       print(res);
       if (res['success'] == true) {
@@ -219,17 +219,14 @@ class _TeacherLoginScreenState extends State<TeacherLoginScreen>
           _savePreference();
         });
 
-
-        Navigator.of(context).pop();
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => LoggedTeacherScreen()),
-        );
       } else if (res['success'] == true && res['block'] == true) {
+        Navigator.of(context).pop();
         invalidAuthUserBlocked();
       } else if (res['success'] == false && res['block'] == false) {
+        Navigator.of(context).pop();
         invalidAuth();
       } else {
+        Navigator.of(context).pop();
         somethingError();
       }
     });
@@ -279,6 +276,12 @@ class _TeacherLoginScreenState extends State<TeacherLoginScreen>
       prefs.setString("myFName", tutorFName);
       prefs.setString("myLName", tutorLName);
       prefs.setString("email", tutorEmail);
+
+      Navigator.of(context).pop();
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => LoggedTeacherScreen()),
+      );
     });
   }
 

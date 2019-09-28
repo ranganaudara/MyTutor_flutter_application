@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:tutor_app_new/src/screens/student_screens/feedback_screen_student/feedback_student.dart';
-import 'package:tutor_app_new/src/screens/student_screens/student_profile/student_profile.dart';
 import 'package:tutor_app_new/src/screens/about_screen/contact_screen.dart';
-class CustomDrawer extends StatelessWidget {
-  final String name;
-
-  //String imageUrl;
+import 'package:tutor_app_new/src/screens/teacher_screens/boost_profile_screen/boost_profile_screen.dart';
+import 'package:tutor_app_new/src/screens/teacher_screens/feedback_screen_tutor/feedback_tutor.dart';
+import 'package:tutor_app_new/src/screens/teacher_screens/teacher_profile/teacher_profile.dart';
+class TeacherDrawer extends StatelessWidget {
+  final String fname;
+  final String lname;
   final String email;
 
-  CustomDrawer({Key key, this.name, this.email}) : super(key: key);
+  TeacherDrawer({Key key, this.fname, this.lname, this.email}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -16,7 +16,7 @@ class CustomDrawer extends StatelessWidget {
       child: ListView(
         children: <Widget>[
           UserAccountsDrawerHeader(
-            accountName: Text('$name'),
+            accountName: Text('$fname '+ lname),
             accountEmail: Text('$email'),
             currentAccountPicture: CircleAvatar(
               child: Image(image: AssetImage('assets/images/user.png')),
@@ -33,7 +33,7 @@ class CustomDrawer extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => StudentProfile(),
+                  builder: (context) => TeacherProfile(),
                 ),
               );
             },
@@ -45,7 +45,7 @@ class CustomDrawer extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => FeedbackScreenStudent(),
+                  builder: (context) => FeedbackScreenTutor(),
                 ),
               );
             },
@@ -62,6 +62,18 @@ class CustomDrawer extends StatelessWidget {
               );
             },
           ),
+          ListTile(
+            title: Text('Boost your Profile'),
+            leading: Icon(Icons.av_timer),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => BoostProfileScreen(),
+                ),
+              );
+            },
+          ),
           Divider(
             height: 10.0,
           ),
@@ -71,7 +83,7 @@ class CustomDrawer extends StatelessWidget {
             onTap: () {
               Navigator.of(context).pushNamedAndRemoveUntil(
                 '/start_page',
-                (Route<dynamic> route) => false,
+                    (Route<dynamic> route) => false,
               );
             },
           ),
@@ -79,4 +91,8 @@ class CustomDrawer extends StatelessWidget {
       ),
     );
   }
+
 }
+
+
+

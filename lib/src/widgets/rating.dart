@@ -69,6 +69,7 @@ class _RatingWidgetState extends State<RatingWidget> {
   Future<String> rateTutor() async {
     Map<String, dynamic> bodyForRateRq = {
       "rate": "$rate",
+      "priority": "$rate*2",
       "tutor": "${widget.tutorEmail}",
       "student": "$studentEmail",
     };
@@ -81,15 +82,30 @@ class _RatingWidgetState extends State<RatingWidget> {
   }
 
   Future<String> reviewTutor() async {
+
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return buildLoadingDialog();
+        });
+
     Map<String, dynamic> bodyForReview = {
       "student": "$studentEmail",
+      "priority": "2",
       "tutor": "${widget.tutorEmail}",
       "content": "$review",
     };
 
     http.post(reviewUrl, body: bodyForReview).then((dynamic response) {
       Map<String, dynamic> res = json.decode(response.body);
+      Navigator.of(context).pop();
       _showSnackBar(res);
+      if(res["success"]==true){
+        Navigator.of(context).pushNamedAndRemoveUntil(
+          '/student_logged',
+              (Route<dynamic> route) => false,
+        );
+      }
     });
     return "Success";
   }
@@ -170,6 +186,22 @@ class _RatingWidgetState extends State<RatingWidget> {
       },
     );
   }
+
+
+  Widget buildLoadingDialog() {
+    return AlertDialog(
+      shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(10.0))),
+      content: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: ListTile(
+          leading: CircularProgressIndicator(),
+          title: Text('Loading...'),
+        ),
+      ),
+    );
+  }
+
 
   _getStudentEmail() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();

@@ -20,6 +20,7 @@ class _StudentProfileState extends State<StudentProfile> {
 
   @override
   void initState() {
+    super.initState();
     _networkStatus = NetworkStatus.LOADING;
     _getStudentEmail();
   }
@@ -41,7 +42,7 @@ class _StudentProfileState extends State<StudentProfile> {
             return ListView(
               children: <Widget>[
                 Container(
-                  height: queryData.size.height,
+                 height: queryData.size.height,
                   color: Colors.white,
                   child: Column(
                     children: <Widget>[
@@ -160,7 +161,7 @@ class _StudentProfileState extends State<StudentProfile> {
     );
   }
 
-  void _getStudentDetails() async {
+  Future<String> _getStudentDetails() async {
     var url = 'https://guarded-beyond-19031.herokuapp.com/viewProfile';
 
     var body = {'email': '$studentEmail', 'role': 'student'};
@@ -170,12 +171,10 @@ class _StudentProfileState extends State<StudentProfile> {
       setState(() {
         _networkStatus = NetworkStatus.COMPLETE;
         student = new Student.fromJson(res);
-        print(student.name);
+        //print(student.name);
       });
     });
   }
-
-
 
 
   _getStudentEmail() async {

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tutor_app_new/src/screens/teacher_screens/logged_teacher_screen/widgets/request_tab_teacher.dart';
+import 'package:tutor_app_new/src/screens/teacher_screens/logged_teacher_screen/widgets/students_tab.dart';
+import 'package:tutor_app_new/src/screens/teacher_screens/logged_teacher_screen/widgets/teacher_drawer.dart';
 
 class LoggedTeacherScreen extends StatefulWidget {
   @override
@@ -37,11 +39,11 @@ class _LoggedTeacherScreenState extends State<LoggedTeacherScreen> {
             tabs: <Widget>[
               Tab(
                 icon: Icon(Icons.person),
-                text: 'Requests',
+                text: 'Classes',
               ),
               Tab(
                 icon: Icon(Icons.book),
-                text: 'Reviews',
+                text: 'Requests',
               ),
               Tab(
                 icon: Icon(Icons.chat),
@@ -50,16 +52,15 @@ class _LoggedTeacherScreenState extends State<LoggedTeacherScreen> {
             ],
           ),
         ),
-        drawer: Drawer(),
-//        drawer: CustomDrawer(
-//          fname: myFName,
-//          lname: myLName,
-//          email: myEmail,
-//        ),
+        drawer: TeacherDrawer(
+          fname: myFName,
+          lname: myLName,
+          email: myEmail,
+        ),
         body: TabBarView(
           children: <Widget>[
+            StudentsTab(),
             RequestsTab(),
-            Icon(Icons.chat_bubble_outline),
             Icon(Icons.chat_bubble_outline),
           ],
         ),

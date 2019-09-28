@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 
 import 'package:tutor_app_new/src/mixins/validator_mixin.dart';
-import 'package:tutor_app_new/src/screens/student_screens/login_screen_student/login_screen_student.dart';
+import 'package:tutor_app_new/src/screens/student_screens/email_verification_student/email_verification_student.dart';
 
 class StudentRegisterScreen extends StatefulWidget {
   @override
@@ -16,7 +17,6 @@ class _StudentRegisterScreenState extends State<StudentRegisterScreen>
   GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
-  String invalidMsg = "";
   String email;
   String password;
   String firstName;
@@ -212,38 +212,69 @@ class _StudentRegisterScreenState extends State<StudentRegisterScreen>
       'role': "student"
     };
 
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return _buildLoadingDialog();
+        });
+
     print(body);
 
     http.post(url, body: body).then((dynamic response) {
       Map<String, dynamic> res = json.decode(response.body);
+      Navigator.pop(context);
       print(res);
       if (res['success'] == true) {
         print(res['msg']);
-        Navigator.of(context).pushNamedAndRemoveUntil(
-          '/student_login',
-          (Route<dynamic> route) => false,
-        );
+        _savePreference();
+      }else if(res['success'] == false && res['has'] == true){
+        invalidAuth("User already exists!!");
+      }else{
+        invalidAuth("Something went wrong! Try again!");
       }
     });
   }
 
-  void invalidAuth() {
+  void invalidAuth(String msg) {
     setState(() {
-      this.invalidMsg = "This user already exists!";
-      _showSnackBar(invalidMsg);
+      _showSnackBar(msg);
       _formKey.currentState.reset();
     });
   }
 
-  _showSnackBar(String invalidMsg) {
+  _showSnackBar(String msg) {
     final snackBar = SnackBar(
       content: Text(
-        invalidMsg,
+        msg,
         style: TextStyle(color: Colors.white),
       ),
       duration: Duration(seconds: 3),
       backgroundColor: Colors.blueGrey,
     );
     _scaffoldKey.currentState.showSnackBar(snackBar);
+  }
+
+  Widget _buildLoadingDialog() {
+    return AlertDialog(
+      shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(10.0))),
+      content: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: ListTile(
+          leading: CircularProgressIndicator(),
+          title: Text('Loading...'),
+        ),
+      ),
+    );
+  }
+
+
+  _savePreference() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      prefs.setString("studentRegEmail", email);
+
+      Navigator.of(context).pushNamed('/student_verification');
+    });
   }
 }

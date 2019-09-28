@@ -6,10 +6,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tutor_app_new/src/models/district_list.dart';
 
 class RequestWidget extends StatefulWidget {
-  final myTutor;
-
-  RequestWidget({Key key, this.myTutor}) : super(key: key);
-
   @override
   _RequestWidgetState createState() => _RequestWidgetState();
 }
@@ -25,6 +21,7 @@ class _RequestWidgetState extends State<RequestWidget> {
   String _subject;
   String _location;
   String _studentEmail;
+  String _tutorEmail;
 
   List<String> subjectList = ["Mathematics", "Physics", "Biology", "Chemistry"];
 
@@ -41,7 +38,7 @@ class _RequestWidgetState extends State<RequestWidget> {
   @override
   void initState() {
     super.initState();
-    _getStudentEmail();
+    _getEmail();
   }
 
   @override
@@ -189,25 +186,56 @@ class _RequestWidgetState extends State<RequestWidget> {
   void _sendRequest() async {
     Map<String, dynamic> requestBody = {
       "student": "$_studentEmail",
-      "tutor": "${widget.myTutor["email"]}",
+      "tutor": "$_tutorEmail",
       "day": "$_day",
       "location": "$_location",
       "subject": "$_subject",
     };
+
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return buildLoadingDialog();
+        });
+
     http.post(requestUrl, body: requestBody).then((dynamic response) {
       Map<String, dynamic> res = json.decode(response.body);
+      Navigator.pop(context);
       setState(() {
-        _showSnackBar("Request sent Successfully!");
+        if (res['success'] == true) {
+          Navigator.of(context).pushNamedAndRemoveUntil(
+            '/student_logged',
+            (Route<dynamic> route) => false,
+          );
+        } else {
+          Navigator.pop(context);
+          _showSnackBar("Request send failed!");
+        }
         print(res['success']);
       });
     });
   }
 
-  _getStudentEmail() async {
+  _getEmail() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       _studentEmail = prefs.getString("email");
+      _tutorEmail = prefs.get("selectedTutorEmail");
     });
+  }
+
+  Widget buildLoadingDialog() {
+    return AlertDialog(
+      shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(10.0))),
+      content: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: ListTile(
+          leading: CircularProgressIndicator(),
+          title: Text('Loading...'),
+        ),
+      ),
+    );
   }
 
   void _showSnackBar(String msg) {

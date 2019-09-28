@@ -5,7 +5,7 @@ import 'package:tutor_app_new/src/models/district_list.dart';
 import 'package:tutor_app_new/src/screens/student_screens/logged_student_screen/widgets/drawer_student.dart';
 import 'package:tutor_app_new/src/screens/student_screens/logged_student_screen/widgets/requests_tab_student.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:tutor_app_new/src/screens/student_screens/teacher_profile_student_view/teacher_profile_student_view.dart';
+import 'package:tutor_app_new/src/screens/student_screens/teacher_profile_student_view/teacher_profile_student_view2.dart';
 
 class LoggedInStudent extends StatefulWidget {
   @override
@@ -25,6 +25,7 @@ class _LoggedInStudentState extends State<LoggedInStudent> {
   String _searchKey;
   String urlForSubject = 'https://guarded-beyond-19031.herokuapp.com/subject';
   String urlForAll = "https://guarded-beyond-19031.herokuapp.com/search";
+  String urlForSearch = "https://guarded-beyond-19031.herokuapp.com/searchByName";
 
   List allTutors;
   List subjectList = [''];
@@ -96,6 +97,28 @@ class _LoggedInStudentState extends State<LoggedInStudent> {
     return "Sucess";
   }
 
+  Future<String> searchTutors() async {
+    var searchBody = {'name': '$_searchKey'};
+    await http
+        .post(Uri.encodeFull(urlForSearch), body: searchBody)
+        .then((dynamic response) {
+      Map<String, dynamic> res = json.decode(response.body);
+
+      print(res);
+
+      setState(() {
+        _networkStatus = NetworkStatus.COMPLETE;
+        allTutors = res["user"];
+        if (allTutors.isEmpty) {
+          _showSnackBar();
+        }
+      });
+
+      print(allTutors);
+    });
+    return "Sucess";
+  }
+
   @override
   Widget build(BuildContext context) {
     //<<<<<<<<<<<<<Splitting Name>>>>>>>>>>>>>>>
@@ -108,16 +131,6 @@ class _LoggedInStudentState extends State<LoggedInStudent> {
         key: _scaffoldKey,
         appBar: AppBar(
           title: Center(child: Text("Hello $myName!")),
-          actions: <Widget>[
-            IconButton(
-              icon: Icon(Icons.notifications),
-              onPressed: () {},
-            ),
-            IconButton(
-              icon: Icon(Icons.search),
-              onPressed: () {},
-            ),
-          ],
           bottom: TabBar(
             tabs: <Widget>[
               Tab(
@@ -157,19 +170,12 @@ class _LoggedInStudentState extends State<LoggedInStudent> {
         itemBuilder: (BuildContext context, index) {
           return Card(
             child: ListTile(
-              leading: _circleImage(allTutors[index]["imgURL"]),
+              leading: _circleImage(allTutors[index]["imgUrl"]),
               title: Text(
                   allTutors[index]["fname"] + " " + allTutors[index]["lname"]),
               subtitle: Text(allTutors[index]["location"]),
               onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => TeacherProfileStudentView(
-                          myTutor: allTutors[index],
-                        ),
-                  ),
-                );
+                _savePreference(allTutors[index]["email"]);
               },
             ),
           );
@@ -236,7 +242,7 @@ class _LoggedInStudentState extends State<LoggedInStudent> {
             controller: searchController,
             decoration: InputDecoration(
               prefixIcon: Icon(Icons.search),
-              hintText: 'Please enter a search term',
+              hintText: 'Enter tutor name',
             ),
             textAlign: TextAlign.center,
           ),
@@ -253,6 +259,10 @@ class _LoggedInStudentState extends State<LoggedInStudent> {
                 onPressed: () {
                   setState(() {
                     _searchKey = searchController.text;
+                    if(_searchKey.isNotEmpty){
+                      searchTutors();
+                    }
+
                   });
                 },
                 child: Text('Search'),
@@ -304,7 +314,7 @@ class _LoggedInStudentState extends State<LoggedInStudent> {
   }
 
   Widget _circleImage(String url) {
-    if (url == null) {
+    if (url == null || url == "undefined" || url == '') {
       return CircleAvatar(
         child: Image(image: AssetImage('assets/images/user.png')),
         maxRadius: 20.0,
@@ -312,6 +322,7 @@ class _LoggedInStudentState extends State<LoggedInStudent> {
         backgroundColor: Colors.transparent,
       );
     } else {
+      print("else");
       return CircleAvatar(
         backgroundImage: NetworkImage(url),
       );
@@ -331,6 +342,21 @@ class _LoggedInStudentState extends State<LoggedInStudent> {
       this._currentDistrictSelected = valueSelected;
       this._district = valueSelected;
       getAllTutors();
+    });
+  }
+
+  _savePreference(String tutorEmail) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      prefs.setString("selectedTutorEmail", tutorEmail);
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => TeacherProfileStudentView2(
+          ),
+        ),
+      );
     });
   }
 

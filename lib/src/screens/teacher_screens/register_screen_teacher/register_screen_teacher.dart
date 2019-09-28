@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 
 import 'package:tutor_app_new/src/mixins/validator_mixin.dart';
@@ -15,7 +16,7 @@ class _TeacherRegisterScreenState extends State<TeacherRegisterScreen>
   GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
-  String invalidMsg = "";
+  String msg = "";
   String email;
   String password;
   String checkPassword;
@@ -223,16 +224,18 @@ class _TeacherRegisterScreenState extends State<TeacherRegisterScreen>
 
     http.post(url, body: body).then((dynamic response) {
       Map<String, dynamic> res = json.decode(response.body);
+
       print(res);
+
+      Navigator.pop(context);
+
       if (res['success'] == true) {
-        print(res['msg']);
-        Navigator.of(context).pushNamedAndRemoveUntil(
-          '/teacher_login',
-          ModalRoute.withName('/choose_user'),
-        );
-      } else {
-        Navigator.of(context).pop();
-        invalidAuth();
+        _savePreference();
+
+      }else if(res['success'] == false && res['has'] == true){
+        invalidAuth("User already exists!!");
+      }else{
+        invalidAuth("Something went wrong! Try again!");
       }
     });
   }
@@ -251,18 +254,17 @@ class _TeacherRegisterScreenState extends State<TeacherRegisterScreen>
     );
   }
 
-  void invalidAuth() {
+  void invalidAuth(String responseMsg) {
     setState(() {
-      this.invalidMsg = "This user already exists!";
-      _showSnackBar(invalidMsg);
+      _showSnackBar(responseMsg);
       _formKey.currentState.reset();
     });
   }
 
-  _showSnackBar(String invalidMsg) {
+  _showSnackBar(String msg) {
     final snackBar = SnackBar(
       content: Text(
-        invalidMsg,
+        msg,
         style: TextStyle(color: Colors.white),
       ),
       duration: Duration(seconds: 3),
@@ -270,4 +272,14 @@ class _TeacherRegisterScreenState extends State<TeacherRegisterScreen>
     );
     _scaffoldKey.currentState.showSnackBar(snackBar);
   }
+
+  _savePreference() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      prefs.setString("tutorRegEmail", email);
+
+      Navigator.of(context).pushNamed('/teacher_verification');
+    });
+  }
+
 }
